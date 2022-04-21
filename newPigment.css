@@ -1,0 +1,19 @@
+body{
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    background-color: yellowgreen;
+}
+
+#canvasWrapper{
+    margin: 0px;
+    padding: 0px;
+    background-color: black;
+}
+
+#mainCanvas{
+    margin: 0px;
+    padding: 0px;
+    background-color: black;
+    cursor: crosshair;
+}
