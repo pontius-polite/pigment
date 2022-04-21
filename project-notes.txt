@@ -1,0 +1,26 @@
+Color Dynamics: linear and sinusoidal
+
+Ant Properties: 
+
+x, y, size, shape
+xSpeed, ySpeed
+color
+lifeTime - frames this ant has been alive
+timeCreated - timestamp for when ant was created, used in priority queue to remove
+
+
+
+Solution to ugly switch:
+
+ant.update = behavior["fungus"];
+
+behavior = {
+	fungus: function(x, y){...},
+	crystal: function(x, y){...},
+	...
+}
+
+ant.update(x, y);
+
+Menu Options:
+Behaviour preset
