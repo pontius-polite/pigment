@@ -1,10 +1,10 @@
 
 /**
- * Main.js responsible for handling setup and update/drawing animation loop.
+ * Main.js is responsible for handling setup and update/drawing animation loop.
  * 
- * HTML Embed Order:
- *     All scripts in ./objects
- *     All scripts in ./util 
+ * Embed Order:
+ *     ./util/* 
+ *     ./objects/*
  *     AppState.js
  *     Main.js
  *     InputHandler.js 
@@ -62,12 +62,14 @@ function update() {
 }
 
 function draw () {
+
+    
     if (state.fade){
         fgcontext.fillStyle = "rgba(0, 0, 0, 0.05)"
         fgcontext.fillRect(0, 0, $("#mainCanvas").width(), $("#mainCanvas").height());
     }
 
-    fillForeground("#00FF00");
+    
 
     fgcontext.fillStyle = "pink";
     fgcontext.fillRect(state.framesElapsed, 200, 50, 50);
@@ -90,8 +92,11 @@ function trimParticlesByFactor(factor) {
     }
 }
 
-/** Resizes canvas elements and centers current drawing in newly sized area. */
+/** Resizes wrapper and canvas elements to the current window size and 
+ * centers current drawing in newly sized area. */
 function resizeDisplay() {
+
+    //TODO (optional): use css transform instead of property change? 
 
     let oldWidth = wrapper.width;
     let oldHeight = wrapper.height;
@@ -112,12 +117,6 @@ function resizeDisplay() {
     state.height = newHeight;
 
     centerDrawing(oldWidth, newWidth, oldHeight, newHeight);
-}
-
-function centerDrawing(oldWidth, newWidth, oldHeight, newHeight) {
-    // TODO
-    // for ant in ants, multiple x and y by proportion of new and old dimensions
-    // move what's already drawn over? 
 }
 
 function fillBackground(color) {
