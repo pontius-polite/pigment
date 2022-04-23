@@ -3,8 +3,8 @@
  * Main.js is responsible for handling setup and update/drawing animation loop.
  * 
  * Embed Order:
- *     ./util/* 
- *     ./objects/*
+ *     util/* 
+ *     objects/*
  *     AppState.js
  *     Main.js
  *     InputHandler.js 
@@ -18,7 +18,6 @@ const bgcontext = backgroundCanvas.getContext('2d');
 
 const wrapper = document.getElementById("displayWrapper");
 
-
 // TODO: add hidden rendering canvas
 
 window.onresize = function() {
@@ -27,61 +26,65 @@ window.onresize = function() {
 
 state = new AppState();
 
-/* Data structure for storing particles. */
 let particleList = new DoubleLinkedList();
+
+let particleColorGenerator = new ColorGenerator();
+let backgroundColorGenerator = new ColorGenerator(); 
 
 let frameStartTime = Date.now();
 
-init = (() => {
+const init = (() => {
     resizeDisplay();
 
     fillBackground(state.backgroundColor);
 
 
     
-    update();
-
+    updateAndDraw();
 })();
 
-function update() {
-    
+function updateAndDraw() {
     // Remove particles if framerate dips below target
     let actualDelta = Date.now() - frameStartTime;
-    let factorBuffer = 1.1;
-    if (Date.now() - frameStartTime > state.targetDelta) {
-        trimParticlesByFactor(factorBuffer * actualDelta / state.targetDelta);
+    let factorBuffer = 1.0;
+
+    // TODO: debug this to work correctly, and don't delete particles when window is unfocused
+    if (Date.now() - frameStartTime > state.targetDelta + 10) {
+        trimParticlesByFactor(factorBuffer * (1 - state.targetDelta / actualDelta));
     }
-    
-    if (state.mouseDown) {
-        console.log("held");
-    }
-    
     frameStartTime = Date.now();
+
+    particleColorGenerator.update();
+    backgroundColorGenerator.update();
+
+    if (state.mouseDown) {
+        createParticle();
+    }
+
+    // TODO: update and draw particles in same loop, that way we don't have to do two for-loops.
+    // We can combine update and draw into a single function
+
+    updateParticles();
 
     draw();
 }
 
 function draw () {
 
-    
     if (state.fade){
         fgcontext.fillStyle = "rgba(0, 0, 0, 0.05)"
         fgcontext.fillRect(0, 0, $("#mainCanvas").width(), $("#mainCanvas").height());
     }
 
-    
 
-    fgcontext.fillStyle = "pink";
-    fgcontext.fillRect(state.framesElapsed, 200, 50, 50);
+    let currentNode = particleList.sentinel;
+    for (let i = 0; i < particleList.size; i += 1) {
+        currentNode = currentNode.next;
+        currentNode.item.draw(fgcontext);   
+    }
+
 
     state.framesElapsed += 1;
-
-    // Remove particles if frames dip below target
-    let actualDelta = Date.now() - frameStartTime;
-    let factorBuffer = 1.1;
-    if (Date.now() - frameStartTime > state.targetDelta) {
-        trimParticlesByFactor(factorBuffer * actualDelta / state.targetDelta);
-    }
     setTimeout(() => { update(); }, state.targetDelta);
 }
 
@@ -92,11 +95,24 @@ function trimParticlesByFactor(factor) {
     }
 }
 
+function updateParticles() {
+    let currentNode = particleList.sentinel;
+    for (let i = 0; i < particleList.size; i += 1) {
+        currentNode = currentNode.next;
+        currentNode.item.update();   
+    }
+}
+
+function drawParticles() {
+
+}
+
 /** Resizes wrapper and canvas elements to the current window size and 
  * centers current drawing in newly sized area. */
 function resizeDisplay() {
 
-    //TODO (optional): use css transform instead of property change? 
+    /* TODO (optional): use css transform instead of property change? Otherwize need to redraw frame? */
+
 
     let oldWidth = wrapper.width;
     let oldHeight = wrapper.height;
@@ -116,7 +132,19 @@ function resizeDisplay() {
     state.width = newWidth;
     state.height = newHeight;
 
-    centerDrawing(oldWidth, newWidth, oldHeight, newHeight);
+}
+
+function createParticle() {
+    
+    p = new Particle(state.mouseX, state.mouseY);
+    p.color = particleColorGenerator.color();
+
+    //TODO: make sure all state properties are applied to new particles
+    p.size = state.particleSize;
+    p.speed = state.particleSpeed;
+    p.movementStyle = state.particleMovementStyle;
+
+    particleList.addLast(p)
 }
 
 function fillBackground(color) {

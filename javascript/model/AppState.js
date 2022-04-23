@@ -24,17 +24,17 @@ class AppState {
         this.width = 0;
         this.height = 0;
         this.backgroundColor = "#191919";
+        this.particleColorChangeFrequency = 1;
 
         this.fade = false;
         this.mirrorType = "none"; // polar, horizontal, vertical
         this.polarMirrorDegree = 6;
 
         /* Particle behavior. */
-        this.particleSize = 5;
+        this.particleSize = 2;
         this.particleSpeed = 5;
         this.particleColor = "white";
-        this.particleMovementStyle = "fungus"
-        this.particleSize = 4;
+        this.particleMovementStyle = "ant"
         this.lifeTime = -1;
         this.growthSpeed = 0;   
 

@@ -43,15 +43,15 @@ class DoubleLinkedList {
         if (this.isEmpty()) {
             throw new ReferenceError("Cannot get item; list is empty.");
         }
-        return this.sentinel.prev.item;
+        return this.sentinel.prev;
     }
 
-    /** Returns the first item in the list, or null if empty. */
+    /** Returns the first node in the list, or null if empty. */
     getFirst() {
         if (this.isEmpty()) {
             throw new ReferenceError("Cannot get item; list is empty.");
         }
-        return this.sentinel.next.item;
+        return this.sentinel.next;
     }
 
     /** Removes and returns the last item in the list, or null if empty. */
@@ -92,6 +92,16 @@ class DoubleLinkedList {
             index -= 1;
         }
         return n.item;
+    }
+
+    remove(index) {
+        if (index < 0 || index >= this.size) {
+            throw new RangeError("Index " + index + "is not in range of this list.");
+        }
+
+        nodeToRemove = this.get(index);
+        connectTwoNodes(nodeToRemove.prev, nodeToRemove.next);
+        size -= 1;
     }
 }
 
