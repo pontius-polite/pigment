@@ -1,5 +1,11 @@
 
+/**
+ * Particles are initialized according to AppState properties, but will maintain their
+ * own properties unless the particle instance is updated. 
+ */
+
 class Particle {
+    
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -10,6 +16,7 @@ class Particle {
 
         this.lifeTime = 0;
         this.reproduceTime = 0;
+        
     }
     
     update() {

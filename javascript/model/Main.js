@@ -1,71 +1,131 @@
 
 /**
- * Script responsible for handling setup, application state, and update/drawing loops.
- * Dependencies:
- *  - DoubleLinkedList.js
- *  - Particle.js 
+ * Main.js responsible for handling setup and update/drawing animation loop.
+ * 
+ * HTML Embed Order:
+ *     All scripts in ./objects
+ *     All scripts in ./util 
+ *     AppState.js
+ *     Main.js
+ *     InputHandler.js 
  */
 
+const foregroundCanvas = document.getElementById("foreground");
+const fgcontext = foregroundCanvas.getContext('2d');
 
-const canvasElement = document.getElementById("pigmentCanvas");
-const ctx = canvasElement.getContext('2d');
+const backgroundCanvas = document.getElementById("background");
+const bgcontext = backgroundCanvas.getContext('2d');
 
-initInputHandling(canvasElement);
+const wrapper = document.getElementById("displayWrapper");
 
-window.onload = function() {init()};
-window.onresize = function() {resizeCanvas()};
 
+// TODO: add hidden rendering canvas
+
+window.onresize = function() {
+    resizeDisplay()
+};
+
+state = new AppState();
+
+/* Data structure for storing particles. */
 let particleList = new DoubleLinkedList();
 
-/* Globals controlled by InputHandler.js */
-let mousePositionX = 0;
-let mousePositionY = 0;
-let mouseDown = false;
-let spaceBarPressed = false;
+let frameStartTime = Date.now();
 
-console.log(particleList.size);
-for (i = 0; i < 1000; i ++) {
-    particleList.addLast(i);
+init = (() => {
+    resizeDisplay();
+
+    fillBackground(state.backgroundColor);
+
+
+    
+    update();
+
+})();
+
+function update() {
+    
+    // Remove particles if framerate dips below target
+    let actualDelta = Date.now() - frameStartTime;
+    let factorBuffer = 1.1;
+    if (Date.now() - frameStartTime > state.targetDelta) {
+        trimParticlesByFactor(factorBuffer * actualDelta / state.targetDelta);
+    }
+    
+    if (state.mouseDown) {
+        console.log("held");
+    }
+    
+    frameStartTime = Date.now();
+
+    draw();
 }
-console.log(particleList.size);
-for (i = 0; i < 1000; i ++) {
-    console.log(particleList.removeFirst(i));
+
+function draw () {
+    if (state.fade){
+        fgcontext.fillStyle = "rgba(0, 0, 0, 0.05)"
+        fgcontext.fillRect(0, 0, $("#mainCanvas").width(), $("#mainCanvas").height());
+    }
+
+    fillForeground("#00FF00");
+
+    fgcontext.fillStyle = "pink";
+    fgcontext.fillRect(state.framesElapsed, 200, 50, 50);
+
+    state.framesElapsed += 1;
+
+    // Remove particles if frames dip below target
+    let actualDelta = Date.now() - frameStartTime;
+    let factorBuffer = 1.1;
+    if (Date.now() - frameStartTime > state.targetDelta) {
+        trimParticlesByFactor(factorBuffer * actualDelta / state.targetDelta);
+    }
+    setTimeout(() => { update(); }, state.targetDelta);
 }
-console.log(particleList.size);
 
-function init() {
-    resizeCanvas();
+function trimParticlesByFactor(factor) {
+    let numToRemove = Math.floor(particleList.size * factor);
+    for (let i = 0; i < numToRemove; i += 1) {
+        particleList.removeFirst(numToRemove);
+    }
 }
 
-/** Resizes canvas element and centers current drawing in newly sized area. */
-function resizeCanvas() {
+/** Resizes canvas elements and centers current drawing in newly sized area. */
+function resizeDisplay() {
 
-    let oldWidth = canvasElement.width;
-    let oldHeight = canvasElement.height;
+    let oldWidth = wrapper.width;
+    let oldHeight = wrapper.height;
 
     let newWidth = window.innerWidth;
     let newHeight = window.innerHeight;
 
-    canvasElement.width = window.innerWidth;
-    canvasElement.height = window.innerHeight;
+    wrapper.width = newWidth;
+    wrapper.height = newHeight;
+
+    foregroundCanvas.width = newWidth;
+    foregroundCanvas.height = newHeight;
+
+    backgroundCanvas.width = newWidth;
+    backgroundCanvas.height = newHeight;
+
+    state.width = newWidth;
+    state.height = newHeight;
 
     centerDrawing(oldWidth, newWidth, oldHeight, newHeight);
 }
 
 function centerDrawing(oldWidth, newWidth, oldHeight, newHeight) {
-    //TODO
+    // TODO
     // for ant in ants, multiple x and y by proportion of new and old dimensions
     // move what's already drawn over? 
 }
 
-(function() {
-    console.log(particleList.size);
-    for (i = 0; i < 1000; i ++) {
-        particleList.addLast(i);
-    }
-    console.log(particleList.size);
-    for (i = 0; i < 1000; i ++) {
-        console.log(particleList.removeFirst(i));
-    }
-    console.log(particleList.size);
-});
+function fillBackground(color) {
+    bgcontext.fillStyle = color;
+    bgcontext.fillRect(0, 0, state.width, state.height);
+}
+
+function fillForeground(color) {
+    fgcontext.fillStyle = color;
+    fgcontext.fillRect(0, 0, state.width, state.height);
+}

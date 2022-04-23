@@ -1,34 +1,27 @@
 
-/** 
- * Scripts for adding event listeners to canvasElement. Must be embedded
- * after Main.js for canvasElement assignment. 
- */
+/* Mouse event handling. */
+wrapper.addEventListener('mousemove', function(event) {
+    state.mouseX = event.clientX;
+    state.mouseY = event.clientY;
+});
+
+wrapper.addEventListener('mousedown', function(event) {
+    state.mouseDown = true;
+    console.log(state.mouseX + " " + state.mouseY);
+});
+
+wrapper.addEventListener('mouseup', function(event) {
+    state.mouseDown = false;
+});
 
 /* Keyboard event handling. */
-canvasElement.addEventListener('keydown', function(event) {
+wrapper.addEventListener('keydown', function(event) {
     let name = event.key;
     let code = event.code;
-    alert("Key pressed: " + name + " | " + code);
 });
 
-canvasElement.addEventListener('keydown', function(event) {
+wrapper.addEventListener('keyup', function(event) {
     let name = event.key;
     let code = event.code;
-    alert("Key pressed: " + name + " | " + code);
-});
 
-/* Mouse event handling. */
-canvasElement.addEventListener('mousemove', function(event) {
-    mousePositionX = event.clientX;
-    mousePositionY = event.clientY;
 });
-
-canvasElement.addEventListener('mousedown', function(event) {
-    mouseDown = true;
-});
-
-canvasElement.addEventListener('mousedown', function(event) {
-    mouseDown = true;
-});
-
- 

@@ -1,0 +1,19 @@
+
+body {
+    margin: 0px;
+    overflow: hidden;
+}
+
+.mainDisplay {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#background {
+    background-color: mediumseagreen; 
+}
+
+#foreground {
+    background-color: transparent;
+}
