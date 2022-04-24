@@ -6,8 +6,9 @@ body {
 
 .mainDisplay {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 0px;
+    top: 0px;
+    cursor: crosshair;
 }
 
 #background {
@@ -16,4 +17,18 @@ body {
 
 #foreground {
     background-color: transparent;
+}
+
+#debugWrapper {
+    
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    background-color: black;
+    color: white;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
 }

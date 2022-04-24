@@ -13,13 +13,30 @@
             <canvas class="mainDisplay" id="background">Your browser does not support HTML canvas</canvas>
             <canvas class="mainDisplay" id="foreground">Your browser does not support HTML canvas</canvas>
         </div>
+        <div id="debugWrapper">
+            <table>
+                <tr>
+                    <td>FPS: </td><td id="debugFPS"></td>
+                </tr>
+                <tr>
+                    <td>Update Time: </td><td id="debugDelta"></td>
+                </tr>
+                <tr>
+                    <td># Particles: </td><td id="debugNumParticles"></td>
+                </tr>
+                <tr>
+                    <td>Particle Color: </td><td id="debugColor"></td>
+                </tr>
+            </table>
+        </div>
     </body>
 
     <script src="./javascript/util/Util.js"></script>
     <script src="./javascript/util/DoubleLinkedList.js"></script>
     <script src="./javascript/objects/ColorGenerator.js"></script>
+    <script src="./javascript/objects/Vector.js"></script>
     <script src="./javascript/objects/Particle.js"></script>
-    <script src="./javascript/model/AppState.js"></script>
+    <script src="./javascript/model/Properties.js"></script>
     <script src="./javascript/model/Main.js"></script>
     <script src="./javascript/model/InputHandler.js"></script>
 </html>
