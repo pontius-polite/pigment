@@ -34,10 +34,9 @@ function drawCircle(canvasContext, x, y, radius, color) {
     canvasContext.fill();
 }
 
-/** Returns an array of num points on a line between p1 and p2. Points are represented by an array */
-function interpolatePoints(p1, p2, num) {
-    points = [];
-    xdif = p1[0] - p2[0];
-    ydif = p1[1] - p2[1];
-    dist = Math.sqrt
+/** Draws a square centered at (x, y) with side length 2*radius. */
+function drawSquare(canvasContext, x, y, radius, color) {
+    canvasContext.fillStyle = color;
+    canvasContext.fillRect(x - radius, y - radius, radius * 2, radius * 2);
 }
+

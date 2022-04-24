@@ -1,16 +1,21 @@
 
 /** 
- * Properties instance govern behavior of the application.
+ * Properties instance govern behavior of the application, provides 'global' variables
+ * without polluting namespace.
  * 
- * Provides functionality for exporting and importing JSON data presets. 
+ * The state of the application is entirely dictated by its Properties instance. 
+ * 
+ * Performance settings: particleShape = square, targetFPS, low reflection degree (<3)
+ * 
  */
 
 class Properties {
     
     constructor() {
         /* User Inputs updated by ./InputHandler.js event listeners. */
-        this.mouseX = 0;
-        this.mouseY = 0;
+        this.mousePos = new Vector(0, 0);
+        /** Old mouse coordinates are from previous frame. */
+        this.prevMousePos = new Vector(0, 0);
         this.mouseDown = false;
         this.spaceBarPressed = false;
 
@@ -26,13 +31,16 @@ class Properties {
         this.backgroundColor = "#191919";
 
         this.fade = false;
-        this.mirrorType = "none"; // polar, horizontal, vertical
-        this.polarMirrorDegree = 6;
+        this.particleReproduceTime = -1;
+        this.reflectionStyle = "vertical"; // none, polar, horizontal, vertical, grid?
+        this.reflectionDegree = 2; // 1-10?
+
 
         this.particlesCreatedPerUpdate = 1;
+        this.interpolateMouseMovements = true;
 
         /* Particle behavior. */
-        this.particleSize = 1;
+        this.particleSize = 4;
         this.particleShape = "circle"
         this.particleSpeed = 3;
         this.defaultParticleColor = "white";
@@ -40,10 +48,9 @@ class Properties {
         this.particleMovementStyle = "ant";
         this.particleGrowthSpeed = 0;  
         this.particleLifeSpan = -1;
-        this.particleReproduceTime = -1;
          
-
         this.showDebug = true;
+        this.debugSampleRate = 1; // samples per second
 
     }
 

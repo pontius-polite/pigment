@@ -28,8 +28,8 @@ class Vector {
         let d = this.distance(v);
         let num = Math.floor(d / interval);
         for (let i = 1; i < num; i += 1) {
-            let px = i * (v.x - this.x) / (num);
-            let py = i * (v.y - this.y) / (num);
+            let px = Math.floor(i * (v.x - this.x) / (num)) + this.x;
+            let py = Math.floor(i * (v.y - this.y) / (num)) + this.y
             points.push(new Vector(px, py));
         }
         return points;

@@ -3,11 +3,11 @@
  * Main.js is responsible for handling setup and update/drawing animation loop.
  * 
  * Embed Order:
+ *     model/Properties.js
  *     util/* 
  *     objects/ColorGenerator.js
- *     objects/Point.js
+ *     objects/Vector.js
  *     objects/Particle.js
- *     model/Properties.js
  *     model/Main.js
  *     model/InputHandler.js 
  */
@@ -29,13 +29,15 @@ let particleList = new DoubleLinkedList();
 let particleColorGenerator = new ColorGenerator();
 let backgroundColorGenerator = new ColorGenerator(); 
 
-// Used for measuring animation times.
 let frameStartTime = Date.now();
 let actualFrameDelta = 0;
+/** The amount of time that the next updateAndDraw call should be delayed. */
 let updateTimeoutDelay = 0;
+// TODO: instead of deleting particles from last frameDelta, delete from average of many frames
+
+// TODO: don't delete particles when window out of focus
 
 const init = (() => {
-
     if (!props.showDebug) {
         $("#debugWrapper").hide();
     }
@@ -43,7 +45,6 @@ const init = (() => {
     resizeDisplay();
 
     fillBackground(props.backgroundColor);
-
     
     updateAndDraw();
 })();
@@ -65,8 +66,6 @@ function updateAndDraw() {
         fgcontext.fillRect(0, 0, $("#mainCanvas").width(), $("#mainCanvas").height());
     }
 
-    // TODO: interpolation function - creates line of points between two coordinates with specified interval
-
     if (props.mouseDown) {
         particleColorGenerator.update();
         for (let i = 0; i < props.particlesCreatedPerUpdate; i += 1){
@@ -80,9 +79,11 @@ function updateAndDraw() {
         updateDebugDisplay();
     }
 
+    props.prevMousePos.x = props.mousePos.x;
+    props.prevMousePos.y = props.mousePos.y;
     props.framesElapsed += 1;
 
-    // actualFrameDelta is the time in ms it took to draw and update everything. 
+    // actualFrameDelta: the time in ms it took to draw and update everything. 
     actualFrameDelta = Date.now() - frameStartTime;
 
     // Adjust how long the next updateAndDraw() call is delayed based on the actualFrameDelta and the properties's target FPS.
@@ -145,20 +146,28 @@ function updateDebugDisplay() {
     fps = (fps > props.targetFPS) ? props.targetFPS : fps; 
     $("#debugFPS").html(fps);
     $("#debugDelta").html(actualFrameDelta + " ms");
+    $("#debugMousePos").html(props.mousePos.x + ", " + props.mousePos.y);
     $("#debugNumParticles").html(particleList.size);
     $("#debugColor").html(particleColorGenerator.color());
 }
 
 function createParticle() {
+    // TODO: particle reproduction
+
+    let color = particleColorGenerator.color();
+
+    //Add interpolated points between mouse movements
+    if (props.interpolateMouseMovements) {
+        points = props.prevMousePos.interpolatePoints(props.mousePos, props.particleSize);
+        for (let i = 0; i < points.length; i += 1) {
+            p = new Particle(points[i], props);
+            p.color = color;
+            particleList.addLast(p);
+        }
+    }
     
-    p = new Particle(props.mouseX, props.mouseY, props);
-    p.color = particleColorGenerator.color();
-
-    //TODO: make sure all properties are applied to new particles
-    p.size = props.particleSize;
-    p.speed = props.particleSpeed;
-    p.movementStyle = props.particleMovementStyle;
-
+    p = new Particle(props.mousePos, props);
+    p.color = color
     particleList.addLast(p)
 }
 

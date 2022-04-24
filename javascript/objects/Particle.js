@@ -1,51 +1,46 @@
 
 class Particle {
     
-    constructor(x, y, properties) {
-        this.pos = new Vector(Math.floor(x), Math.floor(y));
+    constructor(position, properties) {
+        this.position = new Vector(position.x, position.y);
         this.velocity = new Vector(0, 0);
         this.lifeTime = 0;
+        /** Reference to global properties. */
+        this.globalProperties = properties;
 
-        this.size = properties.particleSize;
-        this.shape = properties.particleShape;
-        this.color = properties.defaultParticleColor;
-        this.speed = properties.particleSpeed;
-        this.colorBehaviour = properties.particleColorBehavior;
-        this.movementStyle = properties.particleMovementStyle;
-        this.growthSpeed = properties.particleGrowthSpeed;
-        this.lifeSpan = properties.particleLifeSpan;
-        this.reproduceTime = properties.particleReproduceTime;
-
-        this.movementStyle = "ant";
-        this.movementFormulas = {
-            "ant": () => {
-                this.velocity.x = randomInt(-1 * this.speed, this.speed);
-                this.velocity.y = randomInt(-1 * this.speed, this.speed);
-            },
-            "noodle": () => {
-                
-            }
-        }
-        
+        /** Changes to global properties do not affect particle properties below. */
+        this.size = this.globalProperties.particleSize;
+        this.shape = this.globalProperties.particleShape;
+        this.color = this.globalProperties.defaultParticleColor;
+        this.speed = this.globalProperties.particleSpeed;
+        this.colorBehaviour = this.globalProperties.particleColorBehavior;
+        this.movementStyle = this.globalProperties.particleMovementStyle;
+        this.growthSpeed = this.globalProperties.particleGrowthSpeed;
+        this.lifeSpan = this.globalProperties.particleLifeSpan;
+        this.reproduceTime = this.globalProperties.particleReproduceTime;
     }
     
     update() {
-        this.movementFormulas[this.movementStyle]();
+        particleMovementFormulas[this.movementStyle](this);
 
-        this.pos.x += Math.floor(this.velocity.x);
-        this.pos.y += Math.floor(this.velocity.y);
-
-        this.reproduceTime -= 1;
-        this.lifeTime = 0;
+        this.lifeTime += 1;
     }
 
     draw(canvasContext) {
-        
-        drawCircle(canvasContext, this.pos.x, this.pos.y, Math.floor(this.size / 2), this.color);
 
-        if (props.mirrorType == "vertical") {
+        // grab the correct method for drawing this particle
+        let drawShape = particleDrawFormulas[this.shape];
 
+        let reflectionPoints = particleReflectionFormulas[this.globalProperties.reflectionStyle](this);
+        let pt;
+        for (let i = 0; i < reflectionPoints.length; i += 1) {
+            pt = reflectionPoints[i];
+            drawShape(canvasContext, pt[0], pt[1], Math.floor(this.size / 2), this.color);
         }
+        
+        drawShape(canvasContext, this.position.x, this.position.y, Math.floor(this.size / 2), this.color);
+
+
     }
     
     multiplyVelocityByFactor(factor) {

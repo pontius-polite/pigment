@@ -1,19 +1,16 @@
 
-/** InputHandler depends on display wrapper element and Appstate 'state' being instantiated in Main.js.
+/** InputHandler requires DOM element 'wrapper' and Properties 'props' being instantiated in Main.js.
  * Modifies properties of state based on user input.
  */
 
-let p = props;
-
 /* Mouse event handling. */
 wrapper.addEventListener('mousemove', function(event) {
-    props.mouseX = event.clientX;
-    props.mouseY = event.clientY;
+    props.mousePos.x = event.clientX;
+    props.mousePos.y = event.clientY;
 });
 
 wrapper.addEventListener('mousedown', function(event) {
     props.mouseDown = true;
-    console.log(p.mouseX + " " + p.mouseY);
 });
 
 wrapper.addEventListener('mouseup', function(event) {
