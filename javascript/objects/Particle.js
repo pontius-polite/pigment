@@ -1,30 +1,26 @@
 
-/**
- * Particles are initialized according to AppState properties, but will maintain their
- * own properties unless the particle instance is updated. 
- */
-
 class Particle {
     
-    constructor(x, y) {
-        this.pos = [Math.floor(x), Math.floor(y)];
-        this.velocity = [0, 0];
-
-        this.size = 5;
-        this.shape = "circle";
-        this.color = "#FFFFFF";
-        this.speed = 5;
-
-        this.growthSpeed = 0;
-
+    constructor(x, y, properties) {
+        this.pos = new Vector(Math.floor(x), Math.floor(y));
+        this.velocity = new Vector(0, 0);
         this.lifeTime = 0;
-        this.reproduceTime = 0;
+
+        this.size = properties.particleSize;
+        this.shape = properties.particleShape;
+        this.color = properties.defaultParticleColor;
+        this.speed = properties.particleSpeed;
+        this.colorBehaviour = properties.particleColorBehavior;
+        this.movementStyle = properties.particleMovementStyle;
+        this.growthSpeed = properties.particleGrowthSpeed;
+        this.lifeSpan = properties.particleLifeSpan;
+        this.reproduceTime = properties.particleReproduceTime;
 
         this.movementStyle = "ant";
         this.movementFormulas = {
             "ant": () => {
-                this.velocity[0] = randomInt(-1 * this.speed, this.speed);
-                this.velocity[1] = randomInt(-1 * this.speed, this.speed);
+                this.velocity.x = randomInt(-1 * this.speed, this.speed);
+                this.velocity.y = randomInt(-1 * this.speed, this.speed);
             },
             "noodle": () => {
                 
@@ -36,55 +32,32 @@ class Particle {
     update() {
         this.movementFormulas[this.movementStyle]();
 
-        this.pos[0] += this.velocity[0];
-        this.pos[1] += this.velocity[1];
+        this.pos.x += Math.floor(this.velocity.x);
+        this.pos.y += Math.floor(this.velocity.y);
 
         this.reproduceTime -= 1;
         this.lifeTime = 0;
     }
 
     draw(canvasContext) {
-        canvasContext.fillStyle = this.color;
-        canvasContext.strokeStyle = this.color;
-        canvasContext.beginPath();
-        canvasContext.arc(
-            Math.round(this.pos[0]), Math.round(this.pos[1]), this.size, 0, 6.283184);
-        canvasContext.stroke();
-        canvasContext.fill();
-    }
+        
+        drawCircle(canvasContext, this.pos.x, this.pos.y, Math.floor(this.size / 2), this.color);
 
-    getX() {
-        return this.pos[0];
-    }
+        if (props.mirrorType == "vertical") {
 
-    getY() {
-        return this.pos[1];
-    }
-
-    setX(x) {
-        this.pos[0] = Math.floor(x);
-    }
-
-    setY(y) {
-        this.pos[1] = Math.floor(y);
-    }
-
-    getVelocityX() {
-        return this.velocity[0];
-    }
-
-    getVelocityY() {
-        return this.velocity[1];
-    }
-
-    getAbsoluteSpeed() {
-        return Math.sqrt(
-            (this.velocity[0] * this.velocity[0]) + (this.velocity[1] * this.velocity[1]));
+        }
     }
     
     multiplyVelocityByFactor(factor) {
-        this.velocity[0] *= factor;
-        this.velocity[1] *= factor;
+        this.velocity.x *= factor;
+        this.velocity.y *= factor;
     } 
+
+    isDead() {
+        if (this.lifeSpan > 0 && this.lifeTime > this.lifeSpan){
+            return true;
+        }
+        return false;
+    }
 
 }
