@@ -3,6 +3,7 @@ class Particle {
     
     constructor(position, properties) {
         this.position = new Vector(position.x, position.y);
+        this.prevPosition = new Vector(position.x, position.y);
         this.velocity = new Vector(0, 0);
         this.lifeTime = 0;
         /** Reference to global properties. */
@@ -18,10 +19,24 @@ class Particle {
         this.growthSpeed = this.globalProperties.particleGrowthSpeed;
         this.lifeSpan = this.globalProperties.particleLifeSpan;
         this.reproduceTime = this.globalProperties.particleReproduceTime;
+        this.timer = 0;
     }
     
     update() {
+        this.prevPosition.x = this.position.x;
+        this.prevPosition.y = this.position.y;
+
         particleMovementFormulas[this.movementStyle](this);
+
+        if (this.colorBehaviour == "uniform") {
+            this.color = this.globalProperties.colorGen.color();
+        }
+
+        if (this.colorBehaviour == "cascade" && this.lifeTime % this.globalProperties.cascadeFrequency == 0) {
+            this.color = this.globalProperties.colorGen.color();
+        }
+
+        this.size += this.growthSpeed;
 
         this.lifeTime += 1;
     }
@@ -40,6 +55,10 @@ class Particle {
         
         drawShape(canvasContext, this.position.x, this.position.y, Math.floor(this.size / 2), this.color);
 
+        let shouldInterpolate = this.globalProperties.interpolateParticleMovements && this.globalProperties.reflectionStyle == "none" && this.prevPosition.distance(this.position) > this.size;
+        if (shouldInterpolate) {
+            drawLine(canvasContext, this.prevPosition.x, this.prevPosition.y, this.position.x, this.position.y, this.size, this.color);
+        }
 
     }
     

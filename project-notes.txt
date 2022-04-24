@@ -22,5 +22,29 @@ behavior = {
 
 ant.update(x, y);
 
-Menu Options:
-Behaviour preset
+Settings Menu
+
+General
+    - FPS
+	- Interpolate Mouse Movements
+	- Interpolate Particle Movements
+Particle Behavior
+	- movement style
+	- size
+	- shape
+	- speed
+	- growth speed
+	- lifespan
+Particle color
+	- static color
+	- dynamic color
+	- color behaviour
+	- grayscale
+Background color
+	- static color
+	- dynamic color
+	- grayscale
+Reflection Settings
+	- Reflecton type
+	- reflection degree
+Import & Export

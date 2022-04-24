@@ -15,22 +15,91 @@
         </div>
         <div id="debugWrapper">
             <table>
-                <tr>
-                    <td>FPS: </td><td id="debugFPS"></td>
-                </tr>
-                <tr>
-                    <td>Update Time: </td><td id="debugDelta"></td>
-                </tr>
-                <tr>
-                    <td>Mouse Position: </td><td id="debugMousePos"></td>
-                </tr>
-                <tr>
-                    <td># Particles: </td><td id="debugNumParticles"></td>
-                </tr>
-                <tr>
-                    <td>Particle Color: </td><td id="debugColor"></td>
-                </tr>
+                <tr><td>FPS: </td><td id="debugFPS"></td></tr>
+                <tr><td>Update Time (ms): </td><td id="debugDelta"></td></tr>
+                <tr><td>Mouse Position: </td><td id="debugMousePos"></td></tr>
+                <tr><td># Particles: </td><td id="debugNumParticles"></td></tr>
             </table>
+        </div>
+        <div id="settingsMenuWrapper">
+            <div>Settings</div>
+            <div id="generalSettingsWrapper">
+                <table>
+                    <tr><th>General</th></tr>
+                    <tr>
+                        <td>FPS</td>
+                        <td><input type="number" min="10" max="60" value="30" step ="10"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Interpolate Mouse Movements</td>
+                        <td><input type="checkbox" checked="true"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Interpolate Particle Movements</td>
+                        <td><input type="checkbox" checked="true"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="particleBehaviorSettingsWrapper">
+                <table>
+                    <tr><th>Particle Behavior</th></tr>
+                    <tr>
+                        <td>Movement Style</td>
+                        <td>
+                            <select class="randomizable" id="movementStyleSelector"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Size</td>
+                        <td><input class="randomizable" id="sizeSelector" type="number" min="1" max="100" value="4" step ="1"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Speed</td>
+                        <td><input class="randomizable" type="number" min="1" max="20" value="4"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Shape</td>
+                        <td>
+                            <select id="shapeSelector"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Growth</td>
+                        <td><input class="randomizable" type="number" min="-20" max="20" value="0"></input></td>
+                    </tr>
+                    
+                </table>
+            </div>
+            <div id="particleColorSettingsWrapper">
+                <table>
+                    <tr><th>General</th></tr>
+                    <tr>
+                        <td>FPS: </td>
+                        <td><input type="number" min="0" max="60" value="30"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="backgroundColorSettingsWrapper">
+                <table>
+                    <tr><th>General</th></tr>
+                    <tr>
+                        <td>FPS: </td>
+                        <td><input type="number" min="0" max="60" value="30"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="reflectionSettingsWrapper">
+                <table>
+                    <tr><th>General</th></tr>
+                    <tr>
+                        <td>FPS: </td>
+                        <td><input type="number" min="0" max="60" value="30"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="importExportWrapper">
+                
+            </div>
         </div>
     </body>
     <script src="./javascript/model/Properties.js"></script>

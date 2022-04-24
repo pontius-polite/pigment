@@ -21,18 +21,26 @@ wrapper.addEventListener('mouseup', function(event) {
 window.addEventListener('keydown', function(event) {
     let name = event.key;
     let code = event.code;
-
 });
 
 window.addEventListener('keyup', function(event) {
     let name = event.key;
     let code = event.code;
 
-    console.log(name);
+    console.log(name + " " + code);
     
-    if (name == "d") {
+    if (code == "KeyD") {
         props.showDebug = !props.showDebug;
         $("#debugWrapper").toggle();
     }
+
+    if (code == "Space") {
+        props.pausedMovement = !props.pausedMovement;
+    }
+
+    if (code == "Backspace") {
+        clearParticles();
+        clearForeground();
+    }  
 
 });

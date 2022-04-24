@@ -3,16 +3,58 @@
 const particleMovementFormulas = {
     "none": (particle) => {},
     "ant": (particle) => {
-        particle.velocity.x = randomInt(-1 * particle.speed, particle.speed);
-        particle.velocity.y = randomInt(-1 * particle.speed, particle.speed);
-        particle.position.x += Math.floor(particle.velocity.x);
-        particle.position.y += Math.floor(particle.velocity.y);
+        let s = particle.speed * 0.8;
+        particle.velocity.x = randomInt(-1 * s, s);
+        particle.velocity.y = randomInt(-1 * s, s);
+        particle.position.x += particle.velocity.x;
+        particle.position.y += particle.velocity.y;
     },
-    "noodle": () => {},
-    "crystal": () => {},
-    "tesseract": () => {},
-    "firework": () => {},
-    "gravity": () => {}
+    "noodle": (particle) => {
+        particle.velocity.x += randomInt(-1 * particle.speed, particle.speed);
+        particle.velocity.y += randomInt(-1 * particle.speed, particle.speed);
+
+        particle.velocity.x = constrainValueToRange(particle.velocity.x, -1 * particle.speed, particle.speed);
+        particle.velocity.y = constrainValueToRange(particle.velocity.y, -1 * particle.speed, particle.speed);
+
+    },
+    "crystal": (particle) => {
+        if (particle.timer == 0) {
+            let coin = randomInt(0, 1);
+            if (coin) {
+                particle.velocity.x = particle.speed;
+            } else {
+                particle.velocity.x = -1 * particle.speed;
+            }
+            coin = randomInt(0, 1);
+            if (coin) {
+                particle.velocity.y = particle.speed;
+            } else {
+                particle.velocity.y = -1 * particle.speed;
+            }
+            
+            particle.timer = randomInt(2, 5);
+        }
+
+        particle.position.x += particle.velocity.x;
+        particle.position.y += particle.velocity.y; 
+
+        particle.timer -= 1;
+    },
+    "threads": (particle) => {
+        particle.velocity.x *= 0.95;
+        particle.velocity.y *= 0.95;
+
+        if (Math.abs(particle.velocity.x < 0.05) || Math.abs(particle.velocity.y < 0.05)) {
+            particle.velocity.x = randomInt(0, particle.speed);
+            particle.velocity.y = randomInt(-1, 1);
+        }
+
+        particle.position.x += particle.velocity.x;
+        particle.position.y += particle.velocity.y; 
+    },
+    "gravity": (particle) => {
+        
+    }
 }
 
 /** Returns an array of [x, y] coordinates resulting from reflection of particle's position. */
@@ -69,7 +111,23 @@ const particleReflectionFormulas = {
         return points;
     },
     "polar": (particle) => {
-        
+        let rotationAngle = TAU / (particle.globalProperties.reflectionDegree + 1);
+        let px, py;
+        let points = [];
+        let midX = particle.globalProperties.width / 2.0;
+        let midY = particle.globalProperties.height / 2.0
+        /** 2D rotation matrix calculation around midpoint of screen. */
+        for (let i = rotationAngle; i < TAU; i += rotationAngle){
+            px = ((particle.position.x - midX) * Math.cos(i)) 
+                - ((particle.position.y - midY) * Math.sin(i)) 
+                + midX;
+            py = ((particle.position.x - midX) * Math.sin(i)) 
+                + ((particle.position.y - midY) * Math.cos(i)) 
+                + midY;
+            
+            points.push([px, py]);
+        }
+        return points;
     }
 }
 

@@ -26,9 +26,6 @@ const props = new Properties();
 
 let particleList = new DoubleLinkedList();  
 
-let particleColorGenerator = new ColorGenerator();
-let backgroundColorGenerator = new ColorGenerator(); 
-
 let frameStartTime = Date.now();
 let actualFrameDelta = 0;
 /** The amount of time that the next updateAndDraw call should be delayed. */
@@ -38,15 +35,15 @@ let updateTimeoutDelay = 0;
 // TODO: don't delete particles when window out of focus
 
 const init = (() => {
-    if (!props.showDebug) {
-        $("#debugWrapper").hide();
-    }
+
+    initMenus()
     
     resizeDisplay();
 
     fillBackground(props.backgroundColor);
     
     updateAndDraw();
+    
 })();
 
 function updateAndDraw() {
@@ -59,7 +56,7 @@ function updateAndDraw() {
 
     frameStartTime = Date.now();
 
-    backgroundColorGenerator.update();
+    props.backgroundColorGen.update();
 
     if (props.fade){
         fgcontext.fillStyle = "rgba(0, 0, 0, 0.05)"
@@ -67,13 +64,18 @@ function updateAndDraw() {
     }
 
     if (props.mouseDown) {
-        particleColorGenerator.update();
+        props.colorGen.update();
         for (let i = 0; i < props.particlesCreatedPerUpdate; i += 1){
             createParticle();
         }
+    } else if (props.particleColorBehavior == "cascade") {
+        props.colorGen.update();
     }
 
+
     updateAndDrawParticles();
+    
+    
 
     if (props.showDebug && props.framesElapsed % props.targetFPS == 0) {
         updateDebugDisplay();
@@ -89,14 +91,16 @@ function updateAndDraw() {
     // Adjust how long the next updateAndDraw() call is delayed based on the actualFrameDelta and the properties's target FPS.
     updateTimeoutDelay = props.targetDelta - actualFrameDelta;
     updateTimeoutDelay = (updateTimeoutDelay > 0) ? props.targetDelta - actualFrameDelta : 0;
-    setTimeout(() => { updateAndDraw(); }, (updateTimeoutDelay));
+    setTimeout(() => { updateAndDraw(); }, (updateTimeoutDelay));    
 }
 
 function updateAndDrawParticles() {
     let currentNode = particleList.sentinel;
     for (let i = 0; i < particleList.size; i += 1) {
         currentNode = currentNode.next;
-        currentNode.item.update();
+        if (!props.pausedMovement) {
+            currentNode.item.update();
+        }
         currentNode.item.draw(fgcontext);    
     }
 }
@@ -138,6 +142,8 @@ function resizeDisplay() {
     props.width = newWidth;
     props.height = newHeight;
 
+    fillBackground(props.backgroundColor);
+
 }
 
 /** Fills in data into debug table. */
@@ -145,16 +151,15 @@ function updateDebugDisplay() {
     let fps = Math.floor(1000.0/actualFrameDelta);
     fps = (fps > props.targetFPS) ? props.targetFPS : fps; 
     $("#debugFPS").html(fps);
-    $("#debugDelta").html(actualFrameDelta + " ms");
+    $("#debugDelta").html(actualFrameDelta);
     $("#debugMousePos").html(props.mousePos.x + ", " + props.mousePos.y);
     $("#debugNumParticles").html(particleList.size);
-    $("#debugColor").html(particleColorGenerator.color());
 }
 
 function createParticle() {
     // TODO: particle reproduction
 
-    let color = particleColorGenerator.color();
+    let color = props.colorGen.color();
 
     //Add interpolated points between mouse movements
     if (props.interpolateMouseMovements) {
@@ -188,4 +193,30 @@ function clearForeground() {
 function clearAll() {
     fgcontext.clearRect(0, 0, props.width, props.height);
     bgcontext.clearRect(0, 0, props.width, props.height);
+}
+
+function clearParticles() {
+    particleList = new DoubleLinkedList();
+}
+
+function initMenus() {
+    if (!props.showDebug) {
+        $("#debugWrapper").hide();
+    }
+
+    let styleSelector = document.getElementById("movementStyleSelector");
+    for (const k in particleMovementFormulas){
+        let option = document.createElement("option");
+        option.value = k;
+        option.text = k;
+        styleSelector.appendChild(option);
+    }
+
+    let shapeSelector = document.getElementById("shapeSelector");
+    for (const k in particleDrawFormulas){
+        let option = document.createElement("option");
+        option.value = k;
+        option.text = k;
+        shapeSelector.appendChild(option);
+    }
 }

@@ -24,33 +24,37 @@ class Properties {
         this.framesElapsed = 0;
         this.targetDelta = this.calculateTargetDelta();
         
-        this.paused = false;
+        this.pausedMovement = false;
         
         this.width = 0;
         this.height = 0;
         this.backgroundColor = "#191919";
 
         this.fade = false;
-        this.particleReproduceTime = -1;
-        this.reflectionStyle = "vertical"; // none, polar, horizontal, vertical, grid?
-        this.reflectionDegree = 2; // 1-10?
-
+        this.reflectionStyle = "polar"; // none, polar, horizontal, vertical, grid?
+        this.reflectionDegree = 6; // 1-10?
 
         this.particlesCreatedPerUpdate = 1;
         this.interpolateMouseMovements = true;
+        this.interpolateParticleMovements = true;
+
+        this.colorGen = new ColorGenerator();
+        this.backgroundColorGen = new ColorGenerator();
 
         /* Particle behavior. */
         this.particleSize = 4;
         this.particleShape = "circle"
-        this.particleSpeed = 3;
+        this.particleSpeed = 5;
         this.defaultParticleColor = "white";
-        this.particleColorBehavior = "independent"; // uniform, cascade?
-        this.particleMovementStyle = "ant";
+        this.particleColorBehavior = "normal"; // normal, uniform, cascade
+        this.cascadeFrequency = 20;
+        this.particleMovementStyle = "threads";
         this.particleGrowthSpeed = 0;  
         this.particleLifeSpan = -1;
+        this.particleReproduceTime = -1;
          
         this.showDebug = true;
-        this.debugSampleRate = 1; // samples per second
+        this.debugSampleRate = 2; // samples per second
 
     }
 
