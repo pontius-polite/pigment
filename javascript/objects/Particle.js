@@ -1,44 +1,40 @@
 
 class Particle {
-    
-    constructor(position, properties) {
+    constructor(position, state) {
+
         this.position = new Vector(position.x, position.y);
         this.prevPosition = new Vector(position.x, position.y);
         this.velocity = new Vector(0, 0);
         this.lifeTime = 0;
-        /** Reference to global properties. */
-        this.globalProperties = properties;
 
         /** Changes to global properties do not affect particle properties below. */
-        this.size = this.globalProperties.particleSize;
-        this.shape = this.globalProperties.particleShape;
-        this.color = this.globalProperties.defaultParticleColor;
-        this.speed = this.globalProperties.particleSpeed;
-        this.colorBehaviour = this.globalProperties.particleColorBehavior;
-        this.movementStyle = this.globalProperties.particleMovementStyle;
-        this.growthSpeed = this.globalProperties.particleGrowthSpeed;
-        this.lifeSpan = this.globalProperties.particleLifeSpan;
-        this.reproduceTime = this.globalProperties.particleReproduceTime;
+        this.size = state.particleSize;
+        this.shape = state.particleShape;
+        this.color = state.particleColorGen.color();
+        this.speed = state.particleSpeed;
+        this.colorBehaviour = state.particleColorBehavior;
+        this.movementStyle = state.particleMovementStyle;
+        this.growthSpeed = state.particleGrowthSpeed;
+        this.lifeSpan = state.particleLifeSpan;
+        this.reproduceTime = state.particleReproduceTime;
         this.timer = 0;
     }
     
     update() {
-        this.prevPosition.x = this.position.x;
-        this.prevPosition.y = this.position.y;
 
-        particleMovementFormulas[this.movementStyle](this);
+        this.updatePreviousPosition();
 
-        if (this.colorBehaviour == "uniform") {
-            this.color = this.globalProperties.colorGen.color();
-        }
+        this.applyParticleMovementFormula();
 
-        if (this.colorBehaviour == "cascade" && this.lifeTime % this.globalProperties.cascadeFrequency == 0) {
-            this.color = this.globalProperties.colorGen.color();
-        }
+        this.applyParticleColorFormula();
 
-        this.size += this.growthSpeed;
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y; 
 
-        this.lifeTime += 1;
+        //this.size += this.growthSpeed;
+        //console.log(this.growthSpeed);
+
+        //this.lifeTime += (1 * this.state.fpsFactor);
     }
 
     draw(canvasContext) {
@@ -46,16 +42,19 @@ class Particle {
         // grab the correct method for drawing this particle
         let drawShape = particleDrawFormulas[this.shape];
 
-        let reflectionPoints = particleReflectionFormulas[this.globalProperties.reflectionStyle](this);
-        let pt;
+        let reflectionPoints = particleReflectionFormulas[state.reflectionStyle](this);
         for (let i = 0; i < reflectionPoints.length; i += 1) {
-            pt = reflectionPoints[i];
-            drawShape(canvasContext, pt[0], pt[1], Math.floor(this.size / 2), this.color);
+            let p = reflectionPoints[i];
+            drawShape(canvasContext, p[0], p[1], Math.floor(this.size / 2), this.color);
         }
         
         drawShape(canvasContext, this.position.x, this.position.y, Math.floor(this.size / 2), this.color);
-
-        let shouldInterpolate = this.globalProperties.interpolateParticleMovements && this.globalProperties.reflectionStyle == "none" && this.prevPosition.distance(this.position) > this.size;
+        
+        let shouldInterpolate = state.interpolateParticleMovements && state.reflectionStyle == "none";
+        let difx = this.prevPosition.x - this.position.x;
+        let dify = this.prevPosition.y - this.position.y;
+        shouldInterpolate = shouldInterpolate && (Math.abs(difx) >= this.size || Math.abs(dify) >= this.size);
+    
         if (shouldInterpolate) {
             drawLine(canvasContext, this.prevPosition.x, this.prevPosition.y, this.position.x, this.position.y, this.size, this.color);
         }
@@ -72,6 +71,19 @@ class Particle {
             return true;
         }
         return false;
+    }
+
+    updatePreviousPosition() {
+        this.prevPosition.x = this.position.x;
+        this.prevPosition.y = this.position.y;
+    }
+
+    applyParticleMovementFormula() {
+        particleMovementFormulas[this.movementStyle](this);
+    }
+
+    applyParticleColorFormula() {
+        particleColorFormulas[state.particleColorBehavior](this);
     }
 
 }

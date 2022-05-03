@@ -22,83 +22,102 @@ const wrapper = document.getElementById("displayWrapper");
 
 // TODO: add hidden rendering canvas
 
-const props = new Properties();
-
 let particleList = new DoubleLinkedList();  
 
-let frameStartTime = Date.now();
-let actualFrameDelta = 0;
-/** The amount of time that the next updateAndDraw call should be delayed. */
-let updateTimeoutDelay = 0;
+window.onresize = function() {
+    resizeDisplay()
+};
+
+const frameTimingData = {
+    frameStartTime: Date.now(),
+    actualFrameDelta: 0,
+
+    /** The amount of time that the next updateAndDraw call should be delayed. */
+    updateTimeoutDelay: 0,
+    /** The number of previous frames included in the mean time calculation. */
+    averageFrameDeltaSampleSize: 30,
+    averageFrameDelta: 0 // TODO implement this
+}
+
 // TODO: instead of deleting particles from last frameDelta, delete from average of many frames
 
 // TODO: don't delete particles when window out of focus
 
-const init = (() => {
-
-    initMenus()
+const init = () => {
     
     resizeDisplay();
 
-    fillBackground(props.backgroundColor);
+    fillBackground(state.backgroundColor);
+
+    if (state.showDebug) {
+        $("#debugWrapper").show();
+    }
+
+    applyStateToMenuFields();
     
     updateAndDraw();
-    
-})();
+
+};
 
 function updateAndDraw() {
 
-    if (actualFrameDelta > props.targetDelta) {
-        let factor = props.targetDelta / actualFrameDelta;
+    if (frameTimingData.actualFrameDelta > state.targetDelta) {
+        let factor = state.targetDelta / frameTimingData.actualFrameDelta;
         factor *= 0.9; // Apply a small buffer to make factor smaller.
         trimParticlesByFactor(factor);
     }
 
-    frameStartTime = Date.now();
+    frameTimingData.frameStartTime = Date.now();
 
-    props.backgroundColorGen.update();
-
-    if (props.fade){
-        fgcontext.fillStyle = "rgba(0, 0, 0, 0.05)"
-        fgcontext.fillRect(0, 0, $("#mainCanvas").width(), $("#mainCanvas").height());
+    if (state.grayscale) {
+        state.color = state.particleColorGen.grayscaleColor();
+    } else {
+        state.color = state.particleColorGen.color();
     }
 
-    if (props.mouseDown) {
-        props.colorGen.update();
-        for (let i = 0; i < props.particlesCreatedPerUpdate; i += 1){
-            createParticle();
-        }
-    } else if (props.particleColorBehavior == "cascade") {
-        props.colorGen.update();
+    if (state.mouseDown && state.interpolateMouseMovements && state.reflectionStyle == "none") {
+        drawLine(fgcontext, state.prevMousePos.x, state.prevMousePos.y, state.mousePos.x, state.mousePos.y, state.particleSize, state.particleColorGen.color());
     }
-
 
     updateAndDrawParticles();
-    
-    
 
-    if (props.showDebug && props.framesElapsed % props.targetFPS == 0) {
-        updateDebugDisplay();
+    /* Create particles if mouse is held down. */
+    if (state.mouseDown) {
+        createParticle();     
+    }
+    
+    if (state.mouseDown || state.particleColorBehavior == "uniform") {
+        state.particleColorGen.update();
     }
 
-    props.prevMousePos.x = props.mousePos.x;
-    props.prevMousePos.y = props.mousePos.y;
-    props.framesElapsed += 1;
+    if (state.showDebug) {
+        updateDebugDisplay();
+        $("#debugWrapper").show();
+    } else {
+        $("#debugWrapper").hide();
+    }
+    
+    state.prevMousePos.x = state.mousePos.x;
+    state.prevMousePos.y = state.mousePos.y;
+    state.framesElapsed += 1;
 
     // actualFrameDelta: the time in ms it took to draw and update everything. 
-    actualFrameDelta = Date.now() - frameStartTime;
+    frameTimingData.actualFrameDelta = Date.now() - frameTimingData.frameStartTime;
 
-    // Adjust how long the next updateAndDraw() call is delayed based on the actualFrameDelta and the properties's target FPS.
-    updateTimeoutDelay = props.targetDelta - actualFrameDelta;
-    updateTimeoutDelay = (updateTimeoutDelay > 0) ? props.targetDelta - actualFrameDelta : 0;
-    setTimeout(() => { updateAndDraw(); }, (updateTimeoutDelay));    
+    // Adjust how long the next updateAndDraw() call is delayed based on the actualFrameDelta.
+    frameTimingData.updateTimeoutDelay = state.targetDelta - frameTimingData.actualFrameDelta;
+    if (frameTimingData.updateTimeoutDelay < 0) {
+        frameTimingData.updateTimeoutDelay = 0;
+    }
+    setTimeout(() => { updateAndDraw(); }, (frameTimingData.updateTimeoutDelay));    
 }
 
+// TODO Add an iterator to the double linked list class
 function updateAndDrawParticles() {
     let currentNode = particleList.sentinel;
     for (let i = 0; i < particleList.size; i += 1) {
         currentNode = currentNode.next;
-        if (!props.pausedMovement) {
+        if (!state.pausedMovement) {
             currentNode.item.update();
         }
         currentNode.item.draw(fgcontext);    
@@ -113,19 +132,13 @@ function trimParticlesByFactor(factor) {
     }
 }
 
-window.onresize = function() {
-    resizeDisplay()
-};
+
 
 /** Resizes wrapper and canvas elements to the current window size and 
  * centers current drawing in newly sized area. */
 function resizeDisplay() {
 
     /* TODO (optional): use css transform instead of property change? Otherwize need to redraw frame? */
-
-
-    let oldWidth = wrapper.width;
-    let oldHeight = wrapper.height;
 
     let newWidth = window.innerWidth;
     let newHeight = window.innerHeight;
@@ -139,84 +152,64 @@ function resizeDisplay() {
     backgroundCanvas.width = newWidth;
     backgroundCanvas.height = newHeight;
 
-    props.width = newWidth;
-    props.height = newHeight;
+    state.width = newWidth;
+    state.height = newHeight;
 
-    fillBackground(props.backgroundColor);
+    fillBackground(state.backgroundColor);
 
-}
-
-/** Fills in data into debug table. */
-function updateDebugDisplay() {
-    let fps = Math.floor(1000.0/actualFrameDelta);
-    fps = (fps > props.targetFPS) ? props.targetFPS : fps; 
-    $("#debugFPS").html(fps);
-    $("#debugDelta").html(actualFrameDelta);
-    $("#debugMousePos").html(props.mousePos.x + ", " + props.mousePos.y);
-    $("#debugNumParticles").html(particleList.size);
 }
 
 function createParticle() {
-    // TODO: particle reproduction
-
-    let color = props.colorGen.color();
-
-    //Add interpolated points between mouse movements
-    if (props.interpolateMouseMovements) {
-        points = props.prevMousePos.interpolatePoints(props.mousePos, props.particleSize);
+    // TODO: particle reproduction?
+    if (state.interpolateMouseMovements && state.reflectionStyle == "none") {
+        points = state.prevMousePos.interpolatePoints(state.mousePos, state.particleSize - 2);
         for (let i = 0; i < points.length; i += 1) {
-            p = new Particle(points[i], props);
-            p.color = color;
+            p = new Particle(points[i], state);
             particleList.addLast(p);
         }
     }
     
-    p = new Particle(props.mousePos, props);
-    p.color = color
+    p = new Particle(state.mousePos, state);
     particleList.addLast(p)
+
+    
 }
 
 function fillBackground(color) {
     bgcontext.fillStyle = color;
-    bgcontext.fillRect(0, 0, props.width, props.height);
+    bgcontext.fillRect(0, 0, state.width, state.height);
 }
 
 function fillForeground(color) {
     fgcontext.fillStyle = color;
-    fgcontext.fillRect(0, 0, props.width, props.height);
+    fgcontext.fillRect(0, 0, state.width, state.height);
 }
 
 function clearForeground() {
-    fgcontext.clearRect(0, 0, props.width, props.height);
+    fgcontext.clearRect(0, 0, state.width, state.height);
 }
 
 function clearAll() {
-    fgcontext.clearRect(0, 0, props.width, props.height);
-    bgcontext.clearRect(0, 0, props.width, props.height);
+    fgcontext.clearRect(0, 0, state.width, state.height);
+    bgcontext.fillStyle = state.backgroundColor;
+    bgcontext.fillRect(0, 0, state.width, state.height);
 }
 
 function clearParticles() {
     particleList = new DoubleLinkedList();
 }
 
-function initMenus() {
-    if (!props.showDebug) {
-        $("#debugWrapper").hide();
-    }
-
-    let styleSelector = document.getElementById("movementStyleSelector");
-    for (const k in particleMovementFormulas){
-        let option = document.createElement("option");
-        option.value = k;
-        option.text = k;
-        styleSelector.appendChild(option);
-    }
-
-    let shapeSelector = document.getElementById("shapeSelector");
-    for (const k in particleDrawFormulas){
-        let option = document.createElement("option");
-        option.value = k;
-        option.text = k;
-        shapeSelector.appendChild(option);
-    }
+/** Fills in data into debug table. */
+function updateDebugDisplay() {
+    if (state.framesElapsed % (state.targetFPS / state.debugSamplesPerSecond) == 0) {
+        let currentFPS = state.targetFPS;
+        document.getElementById("debugFPS").innerHTML = currentFPS;
+        document.getElementById("debugDelta").innerHTML = frameTimingData.actualFrameDelta;
+        document.getElementById("debugMousePos").innerHTML = state.mousePos.x + ", " + state.mousePos.y;
+        document.getElementById("debugMouseDown").innerHTML = state.mouseDown;
+        document.getElementById("debugNumParticles").innerHTML = particleList.size;
+        document.getElementById("debugColor").innerHTML = state.particleColorGen.color();
+    } 
 }
+
+$( document ).ready( init );

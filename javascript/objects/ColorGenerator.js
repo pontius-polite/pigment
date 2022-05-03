@@ -8,21 +8,20 @@ class ColorGenerator {
     constructor() {
         this.updates = 0;
 
-        this.rgb = [0, 0, 0];
+        this.rgb = [139, 230, 234];
         this.periods = [10, 9, 8]; 
         this.displacements = [0, 1, 2];
-
-        /** If true, applies luminosity weighted black and white effect. */
-        this.grayscale = false;
+        this.speed = 5.0;
 
         this.style = "waves";
 
-        //** Formula functions dictionary will process color channels according to this.style. */
+        //** Formula functions will process color channels according to this.style. */
         this.formulas = {
             "waves": () => {
                 for (let i = 0; i < 3; i += 1) {
                     this.rgb[i] = Math.floor(
-                        127 * Math.sin(this.updates/this.periods[i] + this.displacements[i]) + 127);
+                        127 * Math.sin(this.updates / this.periods[i] / this.speed + this.displacements[i]) + 127
+                    );
                 }
             },
             "random": () => {
@@ -31,13 +30,6 @@ class ColorGenerator {
                 }
             }    
         };
-    }
-
-    applyGrayscale() {
-        let avg = Math.floor((this.rgb[0] + this.rgb[1] + this.rgb[2]) / 3.0);
-        this.rgb[0] = avg;
-        this.rgb[1] = avg;
-        this.rgb[2] = avg;
     }
 
     red() {
@@ -54,15 +46,21 @@ class ColorGenerator {
 
     /** Returns a javascript interpretable rgb string of the current channel values. */
     color() {
-        return "rgb(" + this.rgb[0] + "," + this.rgb[1] + "," + this.rgb[2] + ")";
+        return "rgb(" + this.red() + "," + this.green() + "," + this.blue() + ")";
     }
 
-    /** Updates color channel values according to wave formula. */
+    /** Returns the luminosity weighted grayscale of the current color. */
+    grayscaleColor() {
+        let lr = Math.floor(0.2126 * this.red());
+        let lg = Math.floor(0.7152 * this.green());
+        let lb = Math.floor(0.0722 * this.blue());
+        let weightedAvg = lr + lg + lb;
+        return "rgb(" + weightedAvg + ", " + weightedAvg + ", " + weightedAvg + ")";
+    }
+
+    /** Updates color channel values according to formula. */
     update() {
         this.formulas[this.style]();
-        if (this.grayscale) {
-            this.applyGrayscale();
-        }
         this.updates += 1;
     }
 }

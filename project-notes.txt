@@ -1,33 +1,14 @@
 Color Dynamics: linear and sinusoidal
 
-Ant Properties: 
-
-x, y, size, shape
-xSpeed, ySpeed
-color
-lifeTime - frames this ant has been alive
-timeCreated - timestamp for when ant was created, used in priority queue to remove
-
-
-
 Solution to ugly switch:
 
-ant.update = behavior["fungus"];
-
-behavior = {
-	fungus: function(x, y){...},
-	crystal: function(x, y){...},
-	...
-}
-
-ant.update(x, y);
 
 Settings Menu
 
 General
-    - FPS
 	- Interpolate Mouse Movements
 	- Interpolate Particle Movements
+	- Show debug
 Particle Behavior
 	- movement style
 	- size
@@ -48,3 +29,16 @@ Reflection Settings
 	- Reflecton type
 	- reflection degree
 Import & Export
+
+Hotkeys:
+debug: d
+pause: space
+clear: escape
+menus: zxcvbn
+toggle ui: u
+toggle mouse cursor: m
+
+Reference links:
+optimizing canvas: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
+webgl off main thread: https://hacks.mozilla.org/2016/01/webgl-off-the-main-thread/
+json stringify: https://www.w3schools.com/js/js_json_stringify.asp

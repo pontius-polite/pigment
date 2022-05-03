@@ -15,100 +15,101 @@
         </div>
         <div id="debugWrapper">
             <table>
-                <tr><td>FPS: </td><td id="debugFPS"></td></tr>
+                <tr><td>Average FPS: </td><td id="debugFPS"></td></tr>
                 <tr><td>Update Time (ms): </td><td id="debugDelta"></td></tr>
                 <tr><td>Mouse Position: </td><td id="debugMousePos"></td></tr>
+                <tr><td>Mouse Down: </td><td id="debugMouseDown"></td></tr>
                 <tr><td># Particles: </td><td id="debugNumParticles"></td></tr>
+                <tr><td>Color: </td><td id="debugColor"></td></tr>
             </table>
         </div>
-        <div id="settingsMenuWrapper">
-            <div>Settings</div>
-            <div id="generalSettingsWrapper">
-                <table>
-                    <tr><th>General</th></tr>
-                    <tr>
-                        <td>FPS</td>
-                        <td><input type="number" min="10" max="60" value="30" step ="10"></input></td>
-                    </tr>
-                    <tr>
-                        <td>Interpolate Mouse Movements</td>
-                        <td><input type="checkbox" checked="true"></input></td>
-                    </tr>
-                    <tr>
-                        <td>Interpolate Particle Movements</td>
-                        <td><input type="checkbox" checked="true"></input></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="particleBehaviorSettingsWrapper">
-                <table>
-                    <tr><th>Particle Behavior</th></tr>
-                    <tr>
-                        <td>Movement Style</td>
-                        <td>
-                            <select class="randomizable" id="movementStyleSelector"></select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Size</td>
-                        <td><input class="randomizable" id="sizeSelector" type="number" min="1" max="100" value="4" step ="1"></input></td>
-                    </tr>
-                    <tr>
-                        <td>Speed</td>
-                        <td><input class="randomizable" type="number" min="1" max="20" value="4"></input></td>
-                    </tr>
-                    <tr>
-                        <td>Shape</td>
-                        <td>
-                            <select id="shapeSelector"></select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Growth</td>
-                        <td><input class="randomizable" type="number" min="-20" max="20" value="0"></input></td>
-                    </tr>
-                    
-                </table>
-            </div>
-            <div id="particleColorSettingsWrapper">
-                <table>
-                    <tr><th>General</th></tr>
-                    <tr>
-                        <td>FPS: </td>
-                        <td><input type="number" min="0" max="60" value="30"></input></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="backgroundColorSettingsWrapper">
-                <table>
-                    <tr><th>General</th></tr>
-                    <tr>
-                        <td>FPS: </td>
-                        <td><input type="number" min="0" max="60" value="30"></input></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="reflectionSettingsWrapper">
-                <table>
-                    <tr><th>General</th></tr>
-                    <tr>
-                        <td>FPS: </td>
-                        <td><input type="number" min="0" max="60" value="30"></input></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="importExportWrapper">
-                
-            </div>
+        <div id="buttonTableWrapper">
+            <table>
+                <tr>
+                    <td colspan="6">
+                        <div id="settingsMenuWrapper">
+                            <div class="settingsMenu" id="generalMenu">
+                                <table>
+                                    <tr>
+                                        <td>interpolate mouse</td>
+                                        <td><input class="stateField" id="interpolateMouseMovements" type="checkbox" checked></input></td>
+                                    </tr>
+                                    <tr>
+                                        <td>interpolate particles</td>
+                                        <td><input class="stateField" id="interpolateParticleMovements" type="checkbox" checked></input></td>
+                                    </tr>
+                                    <tr>
+                                        <td>show debug</td>
+                                        <td><input class="stateField" id="showDebug" type="checkbox"></input></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="settingsMenu" id="particleMenu">
+                                <table>
+                                    <tr>
+                                        <td>movement style</td>
+                                        <td>
+                                            <select class="stateField" id="particleMovementStyle">
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>size</td>
+                                        <td><input class="stateField" id="particleSize" type="number" min="1" max="100" value="5" step ="2"></input></td>
+                                    </tr>
+                                    <tr>
+                                        <td>speed</td>
+                                        <td><input class="stateField" id="particleSpeed" type="number" min="1" max="50" value="2"></input></td>
+                                    </tr>
+                                    <tr>
+                                        <td>shape</td>
+                                        <td>
+                                            <select class="stateField" id="particleShape"></select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>growth</td>
+                                        <td><input class="stateField" id="particleGrowthSpeed" type="number" min="-20" max="20" value="0"></input></td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                            <div class="settingsMenu" id="particleColorMenu">
+                                <table>
+                                    <tr>
+                                        <td>particle color dynamics</td>
+                                        <td>
+                                            <select class="stateField" id="particleColorBehavior"></select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>grayscale</td>
+                                        <td><input class="stateField" id="grayscale" type="checkbox"></input></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>    
+                </tr>
+                <tr>
+                    <td><button title="general settings" class="menuButton" onclick="toggleMenu('generalMenu')">General</button></td>
+                    <td><button title="particle settings" class="menuButton" onclick="toggleMenu('particleMenu')">Particles</button></td>
+                    <td><button title="particle color settings" class="menuButton" onclick="toggleMenu('particleColorMenu')">Color</button></td>
+                    <td><button title="background color settings" class="menuButton" onclick="">BG Color</button></td>
+                    <td><button title="reflection settings" class="menuButton" onclick="">Reflections</button></td>
+                    <td><button title="import & export" class="menuButton" id="importExportButton" onclick="">Import/Export</button></td>
+                </tr>
+            </table>
         </div>
     </body>
-    <script src="./javascript/model/Properties.js"></script>
     <script src="./javascript/util/Util.js"></script>
     <script src="./javascript/util/DoubleLinkedList.js"></script>
     <script src="./javascript/util/ParticleFormulas.js"></script>
     <script src="./javascript/objects/ColorGenerator.js"></script>
     <script src="./javascript/objects/Vector.js"></script>
     <script src="./javascript/objects/Particle.js"></script>
+    <script src="./javascript/model/State.js"></script>
     <script src="./javascript/model/Main.js"></script>
+    <script src="./javascript/model/MenuHandler.js"></script>
     <script src="./javascript/model/InputHandler.js"></script>
 </html>

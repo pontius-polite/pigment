@@ -25,7 +25,7 @@ function randomInt(min, max){
 }
 
 function randomFloat(min, max){
-    return (Math.random() * (max - min) + min);
+    return Math.random() * (max - min) + min;
 }
 
 /** Rotates (x, y) counterclockwise around (sx, sy) by the angle p in radians.*/
@@ -41,6 +41,7 @@ function drawCircle(canvasContext, x, y, radius, color) {
         canvasContext.fillRect(x, y, 1, 1);
         return;
     }
+    canvasContext.lineWidth = 1;
     canvasContext.strokeStyle = color;
     canvasContext.beginPath();
     canvasContext.arc(x, y, radius, 0, TAU);

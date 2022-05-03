@@ -21,15 +21,24 @@ class Vector {
         return Math.sqrt((xdif * xdif) + (ydif * ydif));
     } 
 
-    /** Returns an array of points on a line separated by interval between this vector and v2. 
+    /** Adds this vector to v and returns the result. */
+    addTo(v) {
+        return new Vector(this.x + v.x, this.y + v.y);
+    }
+
+    /** Returns an array of points on a line separated by the interval distance between this 
+     * vector and v2. 
      * Points are represented by vectors. */
     interpolatePoints(v, interval) {
         let points = [];
         let d = this.distance(v);
+        if (interval < 1) {
+            interval = 1;
+        }
         let num = Math.floor(d / interval);
         for (let i = 1; i < num; i += 1) {
-            let px = Math.floor(i * (v.x - this.x) / (num)) + this.x;
-            let py = Math.floor(i * (v.y - this.y) / (num)) + this.y
+            let px = i * (v.x - this.x) / (num) + this.x;
+            let py = i * (v.y - this.y) / (num) + this.y
             points.push(new Vector(px, py));
         }
         return points;
