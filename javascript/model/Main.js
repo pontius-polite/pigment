@@ -1,8 +1,6 @@
 
 /**
- * Main.js is responsible for handling setup and update/drawing animation loop.
- * 
- * Embed Order:
+ * Load Order:
  *     model/Properties.js
  *     util/* 
  *     objects/ColorGenerator.js
@@ -31,12 +29,13 @@ window.onresize = function() {
 const frameTimingData = {
     frameStartTime: Date.now(),
     actualFrameDelta: 0,
-
     /** The amount of time that the next updateAndDraw call should be delayed. */
     updateTimeoutDelay: 0,
-    /** The number of previous frames included in the mean time calculation. */
+    /** The number of previous frames included in the averageFrameDelta calculation. */
     averageFrameDeltaSampleSize: 30,
-    averageFrameDelta: 0 // TODO implement this
+    /** The average amount of time for update and drawing completion. */
+    averageFrameDelta: 0,
+    previousFrameDeltas: []
 }
 
 // TODO: instead of deleting particles from last frameDelta, delete from average of many frames
@@ -75,6 +74,10 @@ function updateAndDraw() {
         state.color = state.particleColorGen.color();
     }
 
+    if (state.backgroundColorBehavior == "dynamic") {
+        
+    }
+
     if (state.mouseDown && state.interpolateMouseMovements && state.reflectionStyle == "none") {
         drawLine(fgcontext, state.prevMousePos.x, state.prevMousePos.y, state.mousePos.x, state.mousePos.y, state.particleSize, state.particleColorGen.color());
     }
@@ -101,10 +104,7 @@ function updateAndDraw() {
     state.prevMousePos.y = state.mousePos.y;
     state.framesElapsed += 1;
 
-    // actualFrameDelta: the time in ms it took to draw and update everything. 
     frameTimingData.actualFrameDelta = Date.now() - frameTimingData.frameStartTime;
-
-    // Adjust how long the next updateAndDraw() call is delayed based on the actualFrameDelta.
     frameTimingData.updateTimeoutDelay = state.targetDelta - frameTimingData.actualFrameDelta;
     if (frameTimingData.updateTimeoutDelay < 0) {
         frameTimingData.updateTimeoutDelay = 0;

@@ -1,20 +1,32 @@
 
-/** Create dropdown options for the movement styles. */
-const styleSelector = document.getElementById("particleMovementStyle");
-for (const k in particleMovementFormulas){
-    let option = document.createElement("option");
-    option.value = k;
-    option.text = k;
-    styleSelector.appendChild(option);
-}
+/** IIFE for creating menu dropdowns from formula names. */
+(function createDropDownMenus() {
+    createParticleMovementStyleDropdown();
+    createParticleShapeDropdown();
+})()
 
-/** Create dropdown options for the shape selections. */ 
-const shapeSelector = document.getElementById("particleShape");
-for (const k in particleDrawFormulas){
-    let option = document.createElement("option");
-    option.value = k;
-    option.text = k;
-    shapeSelector.appendChild(option);
+
+/** Create dropdown options for the movement styles. */
+function createParticleMovementStyleDropdown() {
+    const styleSelector = document.getElementById("particleMovementStyle");
+    for (let formulaName in particleMovementFormulas){
+        let option = document.createElement("option");
+        option.value = formulaName;
+        option.text = formulaName;
+        styleSelector.appendChild(option);
+    }
+}    
+
+
+/** Create dropdown options for the shape selections. */
+function createParticleShapeDropdown() {
+    const shapeSelector = document.getElementById("particleShape");
+    for (let formulaName in particleDrawFormulas){
+        let option = document.createElement("option");
+        option.value = formulaName;
+        option.text = formulaName;
+        shapeSelector.appendChild(option);
+    }
 }
 
 /** Toggles the visibility of the specified menu, and hides all other menus. */
@@ -29,6 +41,7 @@ function toggleMenu(elementid) {
     }
 }
 
+/** Adds  */
 const addMenuEventListeners = (() => {
     for (let field in state) {
         let id = "#" + field;
