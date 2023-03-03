@@ -1,0 +1,40 @@
+{
+  "name": "pigment",
+  "version": "1.0.0",
+  "description": "Browser particle painting",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode=development",
+    "build": "webpack --mode=production",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint src",
+    "prettier": "npx prettier src test --check",
+    "prettier:fix": "npm run prettier -- --write",
+    "format": "npm run prettier:fix && npm run lint:fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrimpactivity/pigment.git"
+  },
+  "author": "Carson Crow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shrimpactivity/pigment/issues"
+  },
+  "homepage": "https://github.com/shrimpactivity/pigment#readme",
+  "devDependencies": {
+    "@babel/core": "^7.21.0",
+    "@babel/preset-env": "^7.20.2",
+    "babel-loader": "^9.1.2",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-jest": "^27.2.1",
+    "html-webpack-plugin": "^5.5.0",
+    "jest": "^29.4.3",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
+  }
+}
