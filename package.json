@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve --mode=development",
     "build": "webpack --mode=production",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "lint": "npx eslint src",
     "prettier": "npx prettier src test --check",
     "prettier:fix": "npm run prettier -- --write",
@@ -24,6 +24,7 @@
   "homepage": "https://github.com/shrimpactivity/pigment#readme",
   "devDependencies": {
     "@babel/core": "^7.21.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.21.2",
     "@babel/preset-env": "^7.20.2",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.3",

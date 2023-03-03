@@ -1,7 +1,8 @@
-
-/** InputHandler requires DOM element 'wrapper' in Main.js and state object being initialized.
- * Modifies state fields based on user input.
- */
+class InputHandler {
+    constructor (drawing) {
+        this.drawing = drawing;
+    }
+}
 
 /* Mouse event handling. */
 wrapper.addEventListener('mousemove', function(event) {
