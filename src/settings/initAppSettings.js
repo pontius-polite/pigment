@@ -1,6 +1,6 @@
-import ColorGenerator from "../models/ColorGenerator";
+import ColorGenerator from "../models/color/ColorGenerator";
 
-const app = {
+const settings = {
   paused: false,
 
   targetFPS: 30,
@@ -37,4 +37,4 @@ const app = {
   backgroundColorGen: new ColorGenerator(),
 };
 
-export default app;
+export default settings;

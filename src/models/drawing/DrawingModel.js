@@ -1,18 +1,17 @@
-import appSettings from "../settings/app";
-import debugSettings from "../settings/debug";
+import initAppSettings from "../../settings/initAppSettings";
 
-import MouseHandler from "../inputs/MouseHandler";
-import KeyHandler from "../inputs/KeyHandler";
+import DebugView from "../debug/DebugView";
+import MouseHandler from "../../inputs/MouseHandler";
+import KeyHandler from "../../inputs/KeyHandler";
 
 import Paintbrush from "./Paintbrush";
 
-import { fillRect } from "../utils/drawing";
+import { fillRect } from "../../utils/drawing";
 
 /**
  * Abstraction of the user's drawing. Handles state, updates, and canvas drawing.
  */
 class DrawingModel {
-  settings = { app: appSettings, debug: debugSettings };
 
   constructor(foregroundElement, backgroundElement) {
     this.foregroundElement = foregroundElement;
@@ -23,14 +22,25 @@ class DrawingModel {
     this.width = foregroundElement.clientWidth;
     this.height = foregroundElement.clientHeight;
 
-    this.mouse = new MouseHandler();
-    this.initKeyFunctions()
-    
+    this.updates = 0;
+
+    this.settings = initAppSettings;
     this.paintbrush = new Paintbrush();
+    this.debugView = new DebugView();
+
+    this.mouse = new MouseHandler();
+    this.keys = new KeyHandler({
+      ' ': () => {
+        this.settings.paused = !this.settings.paused; 
+      },
+      '/': () => {
+        this.debugView.toggle();
+      }
+    })     
   }
 
   start() {
-    this.fillBackground(this.settings.app.backgroundColor);
+    this.fillBackground(this.settings.backgroundColor);
 
     this.update();
   }
@@ -38,13 +48,20 @@ class DrawingModel {
   update() {
     setTimeout(() => {
       this.update();
-    }, this.settings.app.targetDelta);
+    }, this.settings.targetDelta);
 
-    if (!this.settings.app.paused) {
+    if (!this.settings.paused) {
       //this.paintbrush.updateAndDraw();
-      console.log('going!', this.settings.app.targetDelta);
+      
     }
     
+    this.debugView.update({
+      updates: this.updates,
+      'mouse pos': this.mouse.position,
+      'mouse down': this.mouse.pressed,
+    });
+
+    this.updates += 1;
   }
 
   resize() {
@@ -55,14 +72,6 @@ class DrawingModel {
 
   fillBackground(color) {
     fillRect(0, 0, this.width, this.height, this.backgroundContext, color)
-  }
-
-  initKeyFunctions() {
-    const kh = new KeyHandler({
-      ' ': () => {
-        this.settings.app.paused = !this.settings.app.paused; 
-      }
-    })
   }
 }
 

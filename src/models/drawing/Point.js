@@ -57,6 +57,10 @@ class Point {
         }
         return result;
     }
+
+    toString() {
+        return `{x: ${this.x}, y: ${this.y}}`
+    }
 }
 
 export default Point;

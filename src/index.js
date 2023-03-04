@@ -1,5 +1,5 @@
 import './index.css';
-import DrawingModel from './models/DrawingModel';
+import DrawingModel from './models/drawing/DrawingModel';
 
 const foregroundElement = document.getElementById("foreground-canvas");
 const backgroundElement = document.getElementById("background-canvas");

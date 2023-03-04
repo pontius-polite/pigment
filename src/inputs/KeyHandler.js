@@ -1,16 +1,17 @@
 class KeyHandler {
     constructor (keyFunctions) {
-        this.keyFunctions = keyFunctions;
-        this.addEventListeners();
+        this.addEventListeners(keyFunctions);
     }
 
     addEventListeners(keyFunctions) {
         document.documentElement.addEventListener('keyup', function(e) {
             const key = e.key;
-        
-            console.log("Key Pressed:", key);
+            console.log(`Key Pressed: <${key}>`);
+            if (Object.keys(keyFunctions).indexOf(key) !== -1) {
+                keyFunctions[key]();
+            }
 
-            this.keyFunctions[key]();
+            //this.
             
             //TODO:
             // switch (code) {

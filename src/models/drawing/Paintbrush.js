@@ -1,5 +1,5 @@
-import ColorGenerator from "./ColorGenerator";
-import Color from "./Color";
+import ColorGenerator from "../color/ColorGenerator";
+import Color from "../color/Color";
 
 /** Handles particle behavior and drawing. */
 class Paintbrush {

@@ -1,5 +1,5 @@
 import Color from './Color';
-import { randomInt } from "../utils/randomUtils";
+import { randomInt } from "../../utils/randomUtils";
 
 // init: new Color(194, 100, 100
 
