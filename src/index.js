@@ -1,7 +1,7 @@
 import './index.css';
 import PaintingModel from './models/drawing/PaintingModel';
 
-const canvasElement = document.getElementById("background-canvas");
+const canvasElement = document.getElementById("foreground-canvas");
 const backgroundElement = document.querySelector(".canvas-container");
 const paintingModel = new PaintingModel(canvasElement, backgroundElement);
 // TODO: const menuHandler = new MenuHandler(paintingModel);

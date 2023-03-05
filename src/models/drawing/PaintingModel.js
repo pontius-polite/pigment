@@ -1,6 +1,7 @@
 import initAppSettings from "../../settings/initAppSettings";
 
 import DebugView from "../debug/DebugView";
+import FrameTimer from '../timing/FrameTimer';
 import MouseHandler from "../../inputs/MouseHandler";
 import KeyHandler from "../../inputs/KeyHandler";
 
@@ -27,6 +28,7 @@ class PaintingModel {
     this.settings = initAppSettings;
     this.paintbrush = new Paintbrush();
     this.debugView = new DebugView();
+    this.frameTimer = new FrameTimer(10);
 
     this.mouse = new MouseHandler(canvasElement);
     this.keys = new KeyHandler({
@@ -51,11 +53,11 @@ class PaintingModel {
 
   /** The main update loop.  */
   update() {
+    this.frameTimer.update();
+
     setTimeout(() => {
       this.update();
     }, this.settings.targetDelta); 
-
-    
 
     this.updatePaintbrush();
 
@@ -63,6 +65,7 @@ class PaintingModel {
 
     this.mouse.updatePreviousState();
     this.updateDebugDisplay();
+    
   }
 
   updatePaintbrush() {
@@ -84,8 +87,11 @@ class PaintingModel {
   }
 
   updateDebugDisplay() {
+    const updateTime = this.frameTimer.averageDelta();
     this.debugView.update({
       updates: this.paintbrush.updates,
+      "update time": updateTime,
+      FPS: Math.floor(1000 / updateTime),
       width: this.width,
       height: this.height,
       "mouse pos": this.mouse.position,

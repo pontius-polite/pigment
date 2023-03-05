@@ -5,7 +5,7 @@ const settings = {
 
   speed: 1,
   movementOptions: ["creep", "noodle", "crystal", "drip", "bounce", "orbit", "none"],
-  movement: "none",
+  movement: "creep",
   growthSpeed: 0,
   
   colorBehaviorOptions: ['global-dynamic', 'global-static', 'local-dynamic'],

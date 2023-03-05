@@ -19,7 +19,7 @@ class Paintbrush {
     this.updates = 0;
   }
 
-  applyMovement = {
+  applyMovementToParticle = {
     none: (p) => {},
     creep: (p) => {
       let s = this.settings.speed * 2;
@@ -110,7 +110,6 @@ class Paintbrush {
     if (mouse.pressed) {
       this.addParticle(mouse.position.x, mouse.position.y);
       if (this.shouldInterpolate(mouse)) {
-        console.log('interpolating!')
         drawLine(
           context,
           mouse.position.x,
@@ -119,17 +118,26 @@ class Paintbrush {
           mouse.previous.position.y,
           this.settings.size
         );
+
+        const distance = mouse.position.distanceFrom(mouse.previous.position);
+        const numInterpolations = Math.floor(distance / this.settings.size) - 1;
+        for (let point of mouse.position.interpolatePointsBetween(
+          mouse.previous.position,
+          numInterpolations
+        )) {
+          console.log("here");
+          this.addParticle(point.x, point.y);
+        }
       }
     }
 
     this.updates += 1;
-
   }
 
   updateAndDrawParticles(context, pauseMovement) {
     for (let p of this.particles) {
       if (!pauseMovement) {
-        this.applyMovement[this.settings.movement](p);
+        this.applyMovementToParticle[this.settings.movement](p);
       }
       p.draw(context, this.settings.shape, this.settings.size, !this.outline);
     }
@@ -141,8 +149,7 @@ class Paintbrush {
 
   shouldInterpolate(mouse) {
     const shouldInterpolate =
-      this.settings.interpolateMouseMovements &&
-      mouse.previous.pressed
+      this.settings.interpolateMouseMovements && mouse.previous.pressed;
     return shouldInterpolate;
   }
 

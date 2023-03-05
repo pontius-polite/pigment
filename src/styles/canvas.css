@@ -9,11 +9,3 @@
   position: absolute;
   cursor: crosshair;
 }
-
-.foreground-canvas {
-  z-index: 2;
-}
-
-.background-canvas {
-  z-index: 1;
-}
