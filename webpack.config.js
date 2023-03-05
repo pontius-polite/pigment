@@ -5,7 +5,7 @@ const config = {
   entry: './src/index.js',
   output: {
     path: path.join(__dirname, '/dist'),
-    filename: 'main.bundle.js'
+    filename: 'main.bundle.js',
   },
   devServer: {
     static: path.join(__dirname),
@@ -35,7 +35,7 @@ const config = {
       },
       {
         test: /\.png$/,
-        type: 'asset/resource'
+        type: 'asset/resource',
       },
     ]
   },

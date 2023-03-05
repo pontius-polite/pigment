@@ -1,0 +1,19 @@
+.canvas-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  cursor: crosshair;
+}
+
+.canvas-container canvas {
+  position: absolute;
+  cursor: crosshair;
+}
+
+.foreground-canvas {
+  z-index: 2;
+}
+
+.background-canvas {
+  z-index: 1;
+}

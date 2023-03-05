@@ -5,7 +5,7 @@ class KeyHandler {
 
     addEventListeners(keyFunctions) {
         document.documentElement.addEventListener('keyup', function(e) {
-            const key = e.key;
+            const key = e.key.toLowerCase();
             console.log(`Key Pressed: <${key}>`);
             if (Object.keys(keyFunctions).indexOf(key) !== -1) {
                 keyFunctions[key]();

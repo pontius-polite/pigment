@@ -1,6 +1,6 @@
 /** Class for abstracting an hsla color. */
 class Color {
-  constructor(hue, saturation, lightness, alpha = 1) {
+  constructor(hue = 0, saturation = 0, lightness = 0, alpha = 1) {
     console.assert(hue >= 0 && hue < 360);
     console.assert(saturation >= 0 && saturation <= 100);
     console.assert(lightness >= 0 && lightness <= 100);
@@ -18,7 +18,7 @@ class Color {
         this.alpha
       }%)`;
     }
-    return `hsl(${this.hue}, ${this.saturation}%, ${this.lightness})%`;
+    return `hsl(${this.hue}, ${this.saturation}%, ${this.lightness}%)`;
   }
 }
 

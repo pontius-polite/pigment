@@ -1,4 +1,5 @@
 import ColorGenerator from "../models/color/ColorGenerator";
+import Color from "../models/color/Color";
 
 const settings = {
   paused: false,
@@ -20,21 +21,8 @@ const settings = {
     previousFrameDeltas: [],
   },
 
-  reflectionStyles: ["none", "polar", "horizontal", "vertical", "grid"],
-  reflectionStyle: "none",
-  numReflections: 2, // 1-8
-
-  interpolateMouseMovements: true,
-  interpolateParticleMovements: true,
-
-  staticGlobalColor: false,
-  globalParticleColorGen: new ColorGenerator(),
-  globalParticleColorSpeed: 1,
-  grayscale: false,
-
-  backgroundColor: "#181621",
-  staticBackgroundColor: true,
-  backgroundColorGen: new ColorGenerator(),
+  applyGlobalParticleColor: false,
+  dynamicBackroundColor: false,
 };
 
 export default settings;

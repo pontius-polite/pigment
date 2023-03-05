@@ -1,13 +1,16 @@
 import './index.css';
-import DrawingModel from './models/drawing/DrawingModel';
+import PaintingModel from './models/drawing/PaintingModel';
 
-const foregroundElement = document.getElementById("foreground-canvas");
-const backgroundElement = document.getElementById("background-canvas");
-const drawingModel = new DrawingModel(foregroundElement, backgroundElement);
+const canvasElement = document.getElementById("background-canvas");
+const backgroundElement = document.querySelector(".canvas-container");
+const paintingModel = new PaintingModel(canvasElement, backgroundElement);
+// TODO: const menuHandler = new MenuHandler(paintingModel);
+// The above will add onChange event listeners to the menu inputs, 
+// changing settings of the painting model
 
 window.onresize = function() {
-  drawingModel.resize()
+  paintingModel.resize()
 };
 
-drawingModel.start();
+paintingModel.start();
 
