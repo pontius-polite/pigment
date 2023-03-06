@@ -8,7 +8,7 @@ import MouseHandler from "../../inputs/MouseHandler";
  * The coordinate points are shifted such that drawing to (0, 0) is the center of the canvas.
  */
 class CanvasGrid {
-  TAU = 2 * Math.PI;
+ 
   /**
    * Create a new CanvasGrid.
    * @param {HTMLCanvasElement} canvasElement
@@ -59,11 +59,7 @@ class CanvasGrid {
    * @param {boolean} [fill = true] If true, the square will be filled in.
    */
   drawSquare(x, y, size, fill = true) {
-    if (fill) {
-      this.context.fillRect(x - this.offset.x, y - this.offset.y, size, size);
-      return;
-    }
-    this.context.strokeRect(x - this.offset.x, y - this.offset.y, size, size);
+    this.drawRect(x, y, size, size, fill);
   }
 
   /**
@@ -77,16 +73,16 @@ class CanvasGrid {
   drawRect(x, y, width, height, fill = true) {
     if (fill) {
       this.context.fillRect(
-        x - this.offset.x,
-        y - this.offset.y,
+        x + this.offset.x,
+        y + this.offset.y,
         width,
         height
       );
       return;
     }
     this.context.strokeRect(
-      x - this.offset.x,
-      y - this.offset.y,
+      x + this.offset.x,
+      y + this.offset.y,
       width,
       height
     );
@@ -120,6 +116,22 @@ class CanvasGrid {
   }
 
   /**
+   * Draws the specified shape onto the canvas grid.
+   * @param {string} shape circle or square
+   * @param {number} x 
+   * @param {number} y 
+   * @param {number} size 
+   * @param {boolean} fill 
+   */
+  drawShape(shape, x, y, size, fill = true) {
+    if (shape === 'circle') {
+      this.drawCircle(x, y, size, fill);
+      return;
+    }
+    this.drawSquare(x, y, size, fill);
+  }
+
+  /**
    * Draws a line.
    * @param {number} startX
    * @param {number} startY
@@ -131,8 +143,8 @@ class CanvasGrid {
     this.context.lineWidth = thickness;
     this.context.lineCap = "round";
     this.context.beginPath();
-    this.context.moveTo(startX - this.offset.x, startY - this.offset.y);
-    this.context.lineTo(endX - this.offset.x, endY - this.offset.y);
+    this.context.moveTo(startX + this.offset.x, startY + this.offset.y);
+    this.context.lineTo(endX + this.offset.x, endY + this.offset.y);
     this.context.stroke();
     this.context.lineWidth = 1;
   }
@@ -206,6 +218,8 @@ class CanvasGrid {
   updateMouse() {
     this.mouse.updatePreviousState();
   }
+
+  
 }
 
 export default CanvasGrid;

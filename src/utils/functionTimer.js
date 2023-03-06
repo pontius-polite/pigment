@@ -1,13 +1,12 @@
 /**
- * Times how long the provided function takes to compute and prints result to console.
- * @param {string} label 
+ * Times how long the provided function takes to compute.
  * @param {function} f The function to time.
+ * @returns {number} The time in milliseconds.
  */
-const functionTimer = (label, f) => {
+const functionTimer = (f) => {
   const start = Date.now();
   f();
-  console.log(`${label ? label : f.name}`);
-  console.log(Date.now() - start);
+  return (Date.now() - start);
 }
 
 module.exports = functionTimer;

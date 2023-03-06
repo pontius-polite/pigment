@@ -15,7 +15,7 @@ class PaintingModel {
     this.backgroundElement = backgroundElement;
     this.paintbrush = new Paintbrush();
     this.debugView = new DebugView();
-    this.frameTimer = new FrameTimer(10);
+    this.frameTimer = new FrameTimer(20);
 
     this.settings = {
       paused: false,
@@ -49,8 +49,6 @@ class PaintingModel {
 
   /** The main update loop.  */
   update() {
-    this.frameTimer.update();
-
     setTimeout(() => {
       this.update();
     }, this.settings.targetDelta);
@@ -61,6 +59,7 @@ class PaintingModel {
 
     this.grid.updateMouse();
     this.updateDebugDisplay();
+    this.frameTimer.update();
   }
 
   updatePaintbrush() {
@@ -88,7 +87,7 @@ class PaintingModel {
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
       particles: this.paintbrush.particles.length,
-      "particle color": this.paintbrush.color,
+      "particle color": this.paintbrush.settings.color,
       "background color": this.settings.backgroundColor,
     });
   }

@@ -2,6 +2,7 @@ import ColorGenerator from "../color/ColorGenerator";
 import Color from "../color/Color";
 import Particle from "./Particle";
 
+import getReflectionPoints from "./getReflectionPoints";
 import { randomInt } from "../../utils/random";
 
 /** Handles particle behavior and drawing. */
@@ -9,7 +10,7 @@ class Paintbrush {
   constructor() {
     this.particles = [];
     this.settings = {
-      size: 4,
+      size: 5,
       shape: "circle",
       outline: false,
 
@@ -22,11 +23,12 @@ class Paintbrush {
       usePaintbrushColor: false,
       grayscale: false,
 
-      reflectionStyleOptions: ["polar", "horizontal", "vertical", "none"],
-      reflectionStyle: "none",
-      numReflections: 2, // 1-8
+      reflection: {
+        type: "polar",
+        amount: 20,
+      },
 
-      lifespan: 10, //seconds
+      lifespan: Math.floor(10 * 30),
 
       interpolateMouseMovements: true,
       interpolateParticleMovements: true,
@@ -36,83 +38,6 @@ class Paintbrush {
 
     this.updates = 0;
   }
-
-  /** 
-   * Dictionary of particle movement functions.
-   * Calling a movement function on a particle will modify its properties.
-   */
-  applyMovementToParticle = {
-    none: (p) => {},
-    creep: (p) => {
-      let s = this.settings.speed * 2;
-      p.velocity.x = randomInt(-1 * s, s);
-      p.velocity.y = randomInt(-1 * s, s);
-      p.velocity.floor();
-      p.applyVelocity();
-    },
-    // "noodle": (particle) => {
-    //     particle.velocity.x += randomInt(-1 * particle.speed, particle.speed);
-    //     particle.velocity.y += randomInt(-1 * particle.speed, particle.speed);
-
-    //     particle.velocity.x = constrainValueToRange(particle.velocity.x, -1 * particle.speed, particle.speed);
-    //     particle.velocity.y = constrainValueToRange(particle.velocity.y, -1 * particle.speed, particle.speed);
-    // },
-    // "crystal": (particle) => {
-    //     if (particle.timer == 0) {
-    //         let coin = randomInt(0, 1);
-    //         if (coin) {
-    //             particle.velocity.x = particle.speed;
-    //         } else {
-    //             particle.velocity.x = -1 * particle.speed;
-    //         }
-    //         coin = randomInt(0, 1);
-    //         if (coin) {
-    //             particle.velocity.y = particle.speed;
-    //         } else {
-    //             particle.velocity.y = -1 * particle.speed;
-    //         }
-
-    //         particle.timer = randomInt(2, 5);
-    //     }
-    //     particle.timer -= 1;
-    // },
-    // "drip": (particle) => {
-    //     particle.velocity.x *= 0.95;
-    //     particle.velocity.y *= 0.95;
-
-    //     if (Math.abs(particle.velocity.y < 0.05)) {
-    //         particle.velocity.x = randomFloat(-0.5, 0.5);
-    //         particle.velocity.y = randomInt(1, particle.speed);
-
-    //     }
-    // },
-    // "bounce": (particle) => {
-    //     if (particle.lifeTime == 0) {
-    //         particle.velocity.x = randomFloat(-0.5 * particle.speed, 0.5 * particle.speed);
-    //         particle.velocity.y = randomFloat(-1 * particle.speed, particle.speed);
-    //     }
-
-    //     if (particle.position.y > state.height) {
-    //         particle.position.y = state.height - particle.size / 2.0;
-    //         particle.velocity.y *= -0.75;
-    //     }
-
-    //     particle.velocity.y += particle.speed / 10.0;
-    // },
-    // "orbit": (particle) => {
-    //     let rotationAngle = TAU * particle.speed / 360;
-    //     let midX = state.width / 2.0;
-    //     let midY = state.height / 2.0
-
-    //     // TODO: make this a formula of the velocity, not the position
-    //     particle.position.x = ((particle.position.x - midX) * Math.cos(rotationAngle))
-    //             - ((particle.position.y - midY) * Math.sin(rotationAngle))
-    //             + midX;
-    //     particle.position.y = ((particle.position.x - midX) * Math.sin(rotationAngle))
-    //         + ((particle.position.y - midY) * Math.cos(rotationAngle))
-    //         + midY;
-    // }
-  };
 
   /**
    * Updates particles and draws them on the given 2d canvas context.
@@ -136,16 +61,74 @@ class Paintbrush {
   updateAndDrawParticles(grid, pauseMovement) {
     for (let particle of this.particles) {
       if (!pauseMovement) {
-        this.applyMovementToParticle[this.settings.movement](particle);
+        particle.update(this.settings.movement, this.settings.speed); 
+        this.killVagrantParticle(particle, grid);
       }
-      particle.draw(
-        grid,
-        this.settings.shape,
-        this.settings.size,
-        !this.outline,
-        !this.settings.usePaintbrushColor
+      this.drawParticle(particle, grid);
+    }
+    this.removeDeadParticles();
+  }
+
+  /**
+   * Draws the particle onto the grid and interpolates its movement with a line.
+   */
+  drawParticle(particle, grid) {
+    particle.draw(
+      grid,
+      this.settings.shape,
+      this.settings.size,
+      !this.outline,
+      this.settings.usePaintbrushColor
+    );
+
+    if (this.settings.interpolateParticleMovements) {
+      grid.drawLine(
+        particle.prevPosition.x,
+        particle.prevPosition.y,
+        particle.position.x,
+        particle.position.y,
+        this.settings.size
       );
     }
+
+    if (this.settings.reflection.style !== "none") {
+      this.drawReflection(particle, grid);
+    }
+  }
+
+  drawReflection(particle, grid) {
+    const points = getReflectionPoints(
+      particle.position,
+      this.settings.reflection
+    );
+    let prevPoints = null;
+    if (this.settings.interpolateParticleMovements) {
+      prevPoints = getReflectionPoints(
+        particle.prevPosition,
+        this.settings.reflection
+      );
+    }
+    for (let i = 0; i < points.length; i += 1) {
+      const point = points[i];
+      grid.drawShape(
+        this.settings.shape,
+        point.x,
+        point.y,
+        this.settings.size,
+        !this.settings.outline
+      );
+      if (prevPoints) {
+        const prevPoint = prevPoints[i];
+        grid.drawLine(
+          prevPoint.x,
+          prevPoint.y,
+          point.x,
+          point.y,
+          this.settings.size
+        );
+      }
+    }
+
   }
 
   /**
@@ -156,14 +139,14 @@ class Paintbrush {
       this.addParticle(grid.mouseX(), grid.mouseY());
 
       if (this.shouldInterpolate(grid.mouse)) {
-        this.drawMouseLineInterpolation(grid);
+        this.drawMouseInterpolation(grid);
         this.addParticleInterpolations(grid);
       }
     }
   }
 
   /** Draws a line between current and previous mouse positions. */
-  drawMouseLineInterpolation(grid) {
+  drawMouseInterpolation(grid) {
     grid.drawLine(
       grid.mouseX(),
       grid.mouseY(),
@@ -189,10 +172,33 @@ class Paintbrush {
     }
   }
 
+  /** Increases the age of particles that have travelled too far out of the view bounds. */
+  killVagrantParticle(particle, grid) {
+    const shouldParticleDie =
+      Math.abs(particle.position.x) > grid.width ||
+      Math.abs(particle.position.y) > grid.height;
+    if (shouldParticleDie) {
+      particle.age = this.settings.lifespan;
+    }
+  }
+
+  removeDeadParticles() {
+    let i = 0;
+    if (this.particles.length > 0) {
+      while (
+        i < this.particles.length &&
+        this.particles[i].age >= this.settings.lifespan
+      ) {
+        i += 1;
+      }
+      this.particles.splice(0, i);
+    }
+  }
+
   /** Updates the paintbrush color according to color generator. */
   updateColor(grid) {
     if (this.settings.dynamicColor) {
-      if (this.settings.usePaintbrushColor || grid.mousePressed()){
+      if (this.settings.usePaintbrushColor || grid.mousePressed()) {
         this.settings.color = this.colorGen.newColor();
       }
     }
