@@ -1,4 +1,4 @@
-import Point from "../models/drawing/Point";
+import Point from "../models/grid/Point";
 
 /** Class for initializing mouse DOM event handlers and storing mouse state. */
 class MouseHandler {

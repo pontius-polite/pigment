@@ -2,23 +2,45 @@ import ColorGenerator from "../color/ColorGenerator";
 import Color from "../color/Color";
 import Particle from "./Particle";
 
-import initPaintbrushSettings from "../../settings/initPaintbrushSettings";
-
 import { randomInt } from "../../utils/random";
-import { drawLine } from "../../utils/drawing";
 
 /** Handles particle behavior and drawing. */
 class Paintbrush {
   constructor() {
     this.particles = [];
+    this.settings = {
+      size: 4,
+      shape: "circle",
+      outline: false,
 
-    this.color = new Color(194, 100, 50);
-    this.colorGen = new ColorGenerator(this.color);
+      speed: 1,
+      movement: "creep",
+      growthSpeed: 0,
 
-    this.settings = initPaintbrushSettings;
+      color: new Color(194, 100, 50),
+      dynamicColor: true,
+      usePaintbrushColor: false,
+      grayscale: false,
+
+      reflectionStyleOptions: ["polar", "horizontal", "vertical", "none"],
+      reflectionStyle: "none",
+      numReflections: 2, // 1-8
+
+      lifespan: 10, //seconds
+
+      interpolateMouseMovements: true,
+      interpolateParticleMovements: true,
+    };
+
+    this.colorGen = new ColorGenerator(this.settings.color);
+
     this.updates = 0;
   }
 
+  /** 
+   * Dictionary of particle movement functions.
+   * Calling a movement function on a particle will modify its properties.
+   */
   applyMovementToParticle = {
     none: (p) => {},
     creep: (p) => {
@@ -94,71 +116,104 @@ class Paintbrush {
 
   /**
    * Updates particles and draws them on the given 2d canvas context.
-   * @param {CanvasRenderingContext2D} context The canvas context on which to draw.
-   * @param {MouseHandler}
-   * @param {boolean} pauseMovement Pauses movement of particles.
-   * @param {number} width Width of the canvas element.
-   * @param {number} height Height of the canvas element.
+   * @param {CanvasGrid} grid
+   * @param {boolean} pauseMovement Pauses movement of particles if true.
    */
-  updateAndDraw(context, mouse, pauseMovement) {
-    this.updateColor();
-    context.fillStyle = this.color;
-    context.strokeStyle = this.color;
+  updateAndDraw(grid, pauseMovement) {
+    this.updateColor(grid);
+    grid.setColor(this.settings.color);
 
-    this.updateAndDrawParticles(context, pauseMovement);
-
-    if (mouse.pressed) {
-      this.addParticle(mouse.position.x, mouse.position.y);
-      if (this.shouldInterpolate(mouse)) {
-        drawLine(
-          context,
-          mouse.position.x,
-          mouse.position.y,
-          mouse.previous.position.x,
-          mouse.previous.position.y,
-          this.settings.size
-        );
-
-        const distance = mouse.position.distanceFrom(mouse.previous.position);
-        const numInterpolations = Math.floor(distance / this.settings.size) - 1;
-        for (let point of mouse.position.interpolatePointsBetween(
-          mouse.previous.position,
-          numInterpolations
-        )) {
-          console.log("here");
-          this.addParticle(point.x, point.y);
-        }
-      }
-    }
+    this.updateAndDrawParticles(grid, pauseMovement);
+    this.addNewParticlesAndLines(grid);
 
     this.updates += 1;
   }
 
-  updateAndDrawParticles(context, pauseMovement) {
-    for (let p of this.particles) {
+  /**
+   * Updates particle positions according to current movement style and draws them
+   * to the canvas grid.
+   */
+  updateAndDrawParticles(grid, pauseMovement) {
+    for (let particle of this.particles) {
       if (!pauseMovement) {
-        this.applyMovementToParticle[this.settings.movement](p);
+        this.applyMovementToParticle[this.settings.movement](particle);
       }
-      p.draw(context, this.settings.shape, this.settings.size, !this.outline);
+      particle.draw(
+        grid,
+        this.settings.shape,
+        this.settings.size,
+        !this.outline,
+        !this.settings.usePaintbrushColor
+      );
     }
   }
 
-  updateColor() {
-    this.color = this.colorGen.newColor();
+  /**
+   * Adds new particles based on mouse state and interpolates between them, if needed.
+   */
+  addNewParticlesAndLines(grid) {
+    if (grid.mousePressed()) {
+      this.addParticle(grid.mouseX(), grid.mouseY());
+
+      if (this.shouldInterpolate(grid.mouse)) {
+        this.drawMouseLineInterpolation(grid);
+        this.addParticleInterpolations(grid);
+      }
+    }
   }
 
+  /** Draws a line between current and previous mouse positions. */
+  drawMouseLineInterpolation(grid) {
+    grid.drawLine(
+      grid.mouseX(),
+      grid.mouseY(),
+      grid.mousePreviousX(),
+      grid.mousePreviousY(),
+      this.settings.size
+    );
+  }
+
+  /** Adds particle interpolations between current and previous mouse positions. */
+  addParticleInterpolations(grid) {
+    const distance = grid
+      .mousePosition()
+      .distanceFrom(grid.mousePreviousPosition());
+    const numInterpolations = Math.floor(distance / this.settings.size) - 1;
+    for (let point of grid
+      .mousePosition()
+      .interpolatePointsBetween(
+        grid.mousePreviousPosition(),
+        numInterpolations
+      )) {
+      this.addParticle(point.x, point.y);
+    }
+  }
+
+  /** Updates the paintbrush color according to color generator. */
+  updateColor(grid) {
+    if (this.settings.dynamicColor) {
+      if (this.settings.usePaintbrushColor || grid.mousePressed()){
+        this.settings.color = this.colorGen.newColor();
+      }
+    }
+  }
+
+  /**
+   * Returns true if the mouse movements should be interpolated.
+   * @param {MouseHandler} mouse
+   */
   shouldInterpolate(mouse) {
     const shouldInterpolate =
       this.settings.interpolateMouseMovements && mouse.previous.pressed;
     return shouldInterpolate;
   }
 
+  /** Adds a particle centered at (x, y) to this paintbrush. */
   addParticle(x, y) {
     const particle = new Particle(x, y);
+    particle.color = this.settings.color;
     this.particles.push(particle);
   }
-
-  draw(canvasContext) {}
 }
 
 export default Paintbrush;

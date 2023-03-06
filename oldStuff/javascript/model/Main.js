@@ -22,9 +22,7 @@ const wrapper = document.getElementById("displayWrapper");
 
 let particleList = new DoubleLinkedList();  
 
-window.onresize = function() {
-    resizeDisplay()
-};
+
 
 const frameTimingData = {
     frameStartTime: Date.now(),

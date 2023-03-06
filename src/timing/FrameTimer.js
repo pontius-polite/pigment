@@ -1,3 +1,4 @@
+/** Class for tracking frame compute time and keeping a running sample of previous times. */
 class FrameTimer {
   constructor(sampleSize) {
     this.frameStartTime = Date.now();
