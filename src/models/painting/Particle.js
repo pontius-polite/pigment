@@ -28,36 +28,7 @@ class Particle {
     particleDynamics[movement](this, speed);
     this.size = Math.floor(this.size + growthSpeed);
     this.age += 1;
-  }
-
-  /**
-   * Draws the particle onto the specified canvas context.
-   * @param {CanvasGrid} grid 
-   * @param {string} shape The shape of the particle, either circle of square.
-   * @param {boolean} fill Whether or not the particle should be outlined or filled in.
-   * @param {boolean} useParticleColor If true, the particle will be drawn with its own color and not the paintbrush's.
-   * @param {boolean} interpolateMovement If true, a line will be filled in from the particle's previous to its current position.
-   */
-  draw(grid, shape, fill, useParticleColor, interpolateMovement) {
-    if (useParticleColor) {
-      if (this.colorGenerator) {
-        this.color = this.colorGenerator.newColor();
-      }
-      grid.setColor(this.color);
-    }
-    grid.drawShape(shape, this.position.x, this.position.y, this.size, fill);
-    
-    if (interpolateMovement) {
-      grid.drawLine(
-        this.prevPosition.x,
-        this.prevPosition.y,
-        this.position.x,
-        this.position.y,
-        this.size
-      );
-    }
-  }
-    
+  } 
 }
 
 export default Particle;

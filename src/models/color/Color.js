@@ -29,9 +29,9 @@ class Color {
    */
   moveTo(targetColor, increment = 1) {
     if (this.hue < targetColor.hue) {
-      this.hue = Math.min(this.hue + increment * 3, targetColor.hue);
+      this.hue = Math.min(this.hue + increment, targetColor.hue);
     } else {
-      this.hue = Math.max(this.hue - increment * 3, targetColor.hue);
+      this.hue = Math.max(this.hue - increment, targetColor.hue);
     }
 
     if (this.saturation < targetColor.saturation) {
@@ -73,6 +73,14 @@ class Color {
 
     this.lightness = Math.min(this.lightness, 100);
     this.lightness = Math.max(this.lightness, 0);
+  }
+
+  /**
+   * Returns a hard copy of this color.
+   * @returns {Color}
+   */
+  copy() {
+    return new Color(this.hue, this.saturation, this.lightness);
   }
 
   toString() {

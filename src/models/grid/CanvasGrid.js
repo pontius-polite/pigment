@@ -215,6 +215,10 @@ class CanvasGrid {
     return this.mouse.pressed;
   }
 
+  mouseMoveDistance() {
+    return this.mousePosition().distanceFrom(this.mousePreviousPosition());
+  }
+
   updateMouse() {
     this.mouse.updatePreviousState();
   }
