@@ -1,5 +1,5 @@
 import './index.css';
-import PaintingModel from './models/drawing/PaintingModel';
+import PaintingModel from './models/painting/PaintingModel';
 
 const canvasElement = document.getElementById("foreground-canvas");
 const backgroundElement = document.querySelector(".canvas-container");

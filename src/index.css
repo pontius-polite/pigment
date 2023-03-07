@@ -6,6 +6,9 @@
   --menu-background-color: #282942;
   --menu-hover-color: #3e3f66;
   --text-color: #eaeaea;
+
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  font-size: 18px;
 }
 
 body {

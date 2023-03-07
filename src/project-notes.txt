@@ -1,0 +1,61 @@
+
+Settings Menu
+
+Buttons:
+	- pause
+	- clear
+
+
+Paintbrush
+	- movement style
+	- speed
+	- growth
+	- color
+	- dynamic color ?
+		- color gen settings:
+			- preset
+			- colorscheme
+			- grayscale
+-Particle
+	- use paintbrush color
+	- dynamic color ?
+		- color gen settings:
+			- preset
+			- colorscheme
+			- grayscale
+	- grayscale ?
+	- sticky brush color
+-Background
+	- background color
+	- dynamic background color? 
+		- color gen presets
+Reflection
+	- Reflecton type
+	- reflection amount
+Performance
+	- Particle Quality
+	- Particle Lifespan
+	- Interpolate mouse
+	- Interpolate particles
+Hotkeys
+	- space: pause movement
+	- c: clear
+	- d: show debug
+
+Some preset names:
+Brownian fungus
+Crystal spaghetti
+Tangerine dream
+
+Hotkeys:
+debug: d
+pause: space
+clear: c
+menus: zxcvbn
+toggle ui: u
+toggle mouse cursor: m
+
+Reference links:
+optimizing canvas: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
+webgl off main thread: https://hacks.mozilla.org/2016/01/webgl-off-the-main-thread/
+json stringify: https://www.w3schools.com/js/js_json_stringify.asp

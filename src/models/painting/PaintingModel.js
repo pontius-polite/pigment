@@ -1,5 +1,5 @@
 import CanvasGrid from "../grid/CanvasGrid";
-import KeyHandler from "../../inputs/KeyHandler";
+import KeyHandler from "../inputs/KeyHandler";
 import Paintbrush from "./Paintbrush";
 import Color from "../color/Color";
 import ColorGenerator from "../color/ColorGenerator";
@@ -14,24 +14,23 @@ class PaintingModel {
     this.grid = new CanvasGrid(canvasElement);
     this.backgroundElement = backgroundElement;
     this.paintbrush = new Paintbrush();
+
     this.debugView = new DebugView();
     this.frameTimer = new FrameTimer(20);
+    this.targetFPS = 30;
+    this.targetDelta = Math.floor(1000 / this.targetFPS - 1);
+    this.averageDelta = 0;
 
-    this.settings = {
-      paused: false,
-      backgroundColor: new Color(251, 33, 8),
-      targetFPS: 30,
-      targetDelta: Math.floor(1000 / 30),
-      dynamicBackroundColor: false,
-    };
-
+    this.backgroundColor = new Color(251, 33, 8);
     this.backgroundColorGen = new ColorGenerator(new Color(251, 66, 33));
+    this.dynamicBackroundColor = false;
 
     this.keys = new KeyHandler({
       " ": () => {
-        this.settings.paused = !this.settings.paused;
+        const isPaused = this.paintbrush.settings.pauseMovement;
+        this.paintbrush.settings.pauseMovement = !isPaused;
       },
-      "/": () => {
+      d: () => {
         this.debugView.toggle();
       },
       c: () => {
@@ -43,7 +42,7 @@ class PaintingModel {
   start() {
     this.resize();
     this.backgroundElement.style.backgroundColor =
-      this.settings.backgroundColor.toString();
+      this.backgroundColor.toString();
     this.update();
   }
 
@@ -51,44 +50,45 @@ class PaintingModel {
   update() {
     setTimeout(() => {
       this.update();
-    }, this.settings.targetDelta);
-
-    this.updatePaintbrush();
+    }, this.targetDelta);
 
     this.updateBackgroundColor();
-
+    this.paintbrush.updateAndDraw(this.grid);
+    this.trimPaintbrushForPerformance(100);
     this.grid.updateMouse();
     this.updateDebugDisplay();
     this.frameTimer.update();
+    this.averageDelta = this.frameTimer.averageDelta();
   }
 
-  updatePaintbrush() {
-    this.paintbrush.updateAndDraw(this.grid, this.settings.paused);
+  trimPaintbrushForPerformance(amount) {
+    if (this.averageDelta > 40) {
+      this.paintbrush.particles.splice(0, amount);
+    }
   }
 
   /**
    * Updates the background color according to the background color generator.
    */
   updateBackgroundColor() {
-    if (this.settings.dynamicBackroundColor) {
-      this.settings.backgroundColor = this.backgroundColorGen.newColor();
+    if (this.dynamicBackroundColor) {
+      this.backgroundColor = this.backgroundColorGen.newColor();
       this.backgroundElement.style.backgroundColor =
-        this.settings.backgroundColor.toString();
+        this.backgroundColor.toString();
     }
   }
 
   updateDebugDisplay() {
-    const updateTime = this.frameTimer.averageDelta();
     this.debugView.update({
       updates: this.paintbrush.updates,
-      "update time": updateTime,
-      FPS: Math.floor(1000 / updateTime),
+      "update time": this.averageDelta,
+      FPS: Math.floor(1000 / this.averageDelta),
       dimensions: `${this.grid.width} x ${this.grid.height}`,
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
       particles: this.paintbrush.particles.length,
       "particle color": this.paintbrush.settings.color,
-      "background color": this.settings.backgroundColor,
+      "background color": this.backgroundColor,
     });
   }
 

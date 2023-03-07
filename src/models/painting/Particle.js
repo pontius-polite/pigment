@@ -1,6 +1,7 @@
 import Point from "../grid/Point";
 import Color from '../color/Color';
 import particleDynamics from "./particleDynamics"
+import ColorGenerator from "../color/ColorGenerator";
 
 /** Class representing a single pigment particle on the screen. Particles are created 
  * and manipulated by a Paintbrush.
@@ -10,9 +11,10 @@ class Particle {
     this.position = new Point(x, y);
     this.prevPosition = new Point(x, y);
     this.velocity = new Point(0, 0);
+    this.color = new Color(0, 0);
+    this.size = 5;
     this.age = 0;
     this.timer = 0;
-    this.color = new Color(0, 0, 0);
   }
 
   applyVelocity() {
@@ -20,10 +22,11 @@ class Particle {
     this.position.y += this.velocity.y;
   }
 
-  update(movement, speed) {
+  update(movement, speed, growthSpeed) {
     this.prevPosition.x = this.position.x;
     this.prevPosition.y = this.position.y;
     particleDynamics[movement](this, speed);
+    this.size = Math.floor(this.size + growthSpeed);
     this.age += 1;
   }
 
@@ -31,15 +34,27 @@ class Particle {
    * Draws the particle onto the specified canvas context.
    * @param {CanvasGrid} grid 
    * @param {string} shape The shape of the particle, either circle of square.
-   * @param {number} size The size of the particle 
    * @param {boolean} fill Whether or not the particle should be outlined or filled in.
+   * @param {boolean} colorOverride If true, the particle will be drawn with the paintbrush's color 
+   * @param {boolean} interpolateMovement If true, a line will be filled in from the particle's previous to its current position.
    */
-  draw(grid, shape, size, fill, colorOverride) {
+  draw(grid, shape, fill, colorOverride, interpolateMovement) {
     if (!colorOverride) {
       grid.setColor(this.color);
     }
-    grid.drawShape(shape, this.position.x, this.position.y, size, fill);
+    grid.drawShape(shape, this.position.x, this.position.y, this.size, fill);
+    
+    if (interpolateMovement) {
+      grid.drawLine(
+        this.prevPosition.x,
+        this.prevPosition.y,
+        this.position.x,
+        this.position.y,
+        this.size
+      );
+    }
   }
+    
 }
 
 export default Particle;

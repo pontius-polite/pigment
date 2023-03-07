@@ -1,6 +1,6 @@
 import Point from "./Point";
 import Color from "../color/Color";
-import MouseHandler from "../../inputs/MouseHandler";
+import MouseHandler from "../inputs/MouseHandler";
 
 /**
  * Class for maintaining and drawing to a canvas element as well as mouse state.
