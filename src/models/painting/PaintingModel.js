@@ -87,8 +87,8 @@ class PaintingModel {
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
       particles: this.paintbrush.particles.length,
-      "particle color": this.paintbrush.settings.color,
-      "background color": this.backgroundColor,
+      "particle color": this.paintbrush.settings.brushColor.toString(),
+      "background color": this.backgroundColor.toString(),
     });
   }
 

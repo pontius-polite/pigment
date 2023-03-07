@@ -2,8 +2,12 @@
 Settings Menu
 
 Buttons:
+	- Randomize!
 	- pause
 	- clear
+	- screenshot
+	- save 
+	- upload
 
 
 Paintbrush
