@@ -15,7 +15,7 @@ class ColorGenerator {
     this.color = initialColor ? initialColor : new Color();
     this.speed = 1;
     this.style = 'static';
-    this.period = 1;
+    this.interval = 1;
 
     this.cycleDirection = {
       hue: 1,

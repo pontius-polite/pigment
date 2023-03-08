@@ -13,7 +13,7 @@ class PaintingModel {
   constructor(canvasElement, backgroundElement) {
     this.grid = new CanvasGrid(canvasElement);
     this.backgroundElement = backgroundElement;
-    this.paintbrush = new Paintbrush();
+    this.brush = new Paintbrush();
 
     this.debugView = new DebugView();
     this.frameTimer = new FrameTimer(20);
@@ -22,13 +22,11 @@ class PaintingModel {
     this.averageDelta = 0;
 
     this.backgroundColor = new Color(251, 33, 8);
-    this.backgroundColorGen = new ColorGenerator(new Color(251, 66, 33));
-    this.dynamicBackroundColor = false;
 
     this.keys = new KeyHandler({
       " ": () => {
-        const isPaused = this.paintbrush.settings.pauseMovement;
-        this.paintbrush.settings.pauseMovement = !isPaused;
+        const isPaused = this.brush.settings.pauseMovement;
+        this.brush.settings.pauseMovement = !isPaused;
       },
       d: () => {
         this.debugView.toggle();
@@ -52,8 +50,8 @@ class PaintingModel {
       this.update();
     }, this.targetDelta);
 
-    this.updateBackgroundColor();
-    this.paintbrush.updateAndDraw(this.grid);
+    this.backgroundElement.style.backgroundColor =  this.backgroundColor.toString();
+    this.brush.updateAndDraw(this.grid);
     this.trimPaintbrushForPerformance(100);
     this.grid.updateMouse();
     this.updateDebugDisplay();
@@ -62,8 +60,8 @@ class PaintingModel {
   }
 
   trimPaintbrushForPerformance(amount) {
-    if (this.averageDelta > 40) {
-      this.paintbrush.particles.splice(0, amount);
+    if (this.averageDelta > 38) {
+      this.brush.particles.splice(0, amount);
     }
   }
 
@@ -73,21 +71,21 @@ class PaintingModel {
   updateBackgroundColor() {
     if (this.dynamicBackroundColor) {
       this.backgroundColor = this.backgroundColorGen.newColor();
-      this.backgroundElement.style.backgroundColor =
-        this.backgroundColor.toString();
+      
     }
   }
 
   updateDebugDisplay() {
     this.debugView.update({
-      updates: this.paintbrush.updates,
+      paused: this.brush. settings.pauseMovement,
+      updates: this.brush.updates,
       "update time": this.averageDelta,
       FPS: Math.floor(1000 / this.averageDelta),
       dimensions: `${this.grid.width} x ${this.grid.height}`,
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
-      particles: this.paintbrush.particles.length,
-      "particle color": this.paintbrush.settings.brushColor.toString(),
+      particles: this.brush.particles.length,
+      "particle color": this.brush.settings.brushColor.toString(),
       "background color": this.backgroundColor.toString(),
     });
   }
@@ -103,7 +101,7 @@ class PaintingModel {
 
   clear() {
     this.grid.clear();
-    this.paintbrush.particles = [];
+    this.brush.particles = [];
   }
 }
 

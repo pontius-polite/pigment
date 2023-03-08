@@ -13,19 +13,36 @@
   flex-direction: row;
 }
 
+.menu-tab-button-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-nav-button-container {
+  margin-left: auto;
+}
+
 .menu-button {
   padding: 10px;
   cursor: pointer;
+  background-color: var(--menu-background-color);
+}
+
+.menu-button.selected {
+  background-color: var(--menu-selected-color);
+}
+
+.menu-panel {
+  padding: 10px;
+  background-color: var(--menu-selected-color);
 }
 
 .menu-button:hover {
   box-shadow: 0px 1px 0px 0px white;
-  background-color: var(--menu-hover-color);
+  background-color: var(--menu-selected-color);
 }
 
-.nav-buttons {
-  margin-left: auto;
-}
+
 
 a {
   text-decoration: none;

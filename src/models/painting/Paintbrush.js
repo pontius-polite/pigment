@@ -12,18 +12,20 @@ class Paintbrush {
       pauseMovement: false,
 
       size: 1,
-      growthSpeed: 2,
-      shape: "circle",
+      growthSpeed: 1,
+      shape: "circle", 
       outline: false,
 
       speed: 1,
-      movement: "none",
+      movement: "fountain",
+      bounce: true,
+      followMouse: false,
 
       brushColor: new Color(194, 100, 50),
       brushColorGen: {
-        style: "cycleLightness",
-        speed: 1,
-        period: 1,
+        style: "cycleHue",
+        speed: 2,
+        interval: 1,
       },
       dynamicBrushColor: true,
       useBrushColor: false,
@@ -31,18 +33,18 @@ class Paintbrush {
       particleColorGen: {
         style: "cycleHue",
         speed: 2,
-        period: 1,
+        interval: 1,
       },
-      dynamicParticleColor: true, // Lowers performance
+      dynamicParticleColor: false,
 
       reflection: {
         type: "none",
-        amount: 3,
+        amount: 8,
       },
 
       lifespan: Math.floor(10 * 30),
 
-      interpolateMouse: true,
+      interpolateMouse: false,
       interpolateParticles: true,
     };
 
@@ -55,7 +57,7 @@ class Paintbrush {
     const colorGen = new ColorGenerator(this.settings.brushColor.copy());
     colorGen.style = this.settings.brushColorGen.style;
     colorGen.speed = this.settings.brushColorGen.speed;
-    colorGen.period = this.settings.brushColorGen.period;
+    colorGen.interval = this.settings.brushColorGen.interval;
     return colorGen;
   }
 
@@ -106,6 +108,7 @@ class Paintbrush {
   shouldInterpolateMouse(grid) {
     return (
       this.settings.interpolateMouse &&
+      grid.mouse.pressed &&
       grid.mouse.previous.pressed
     );
   }
@@ -131,7 +134,7 @@ class Paintbrush {
     const colorGen = new ColorGenerator(this.settings.brushColor.copy());
     colorGen.style = this.settings.particleColorGen.style;
     colorGen.speed = this.settings.particleColorGen.speed;
-    colorGen.period = this.settings.particleColorGen.period;
+    colorGen.interval = this.settings.particleColorGen.interval;
     return colorGen;
   }
 
@@ -142,7 +145,6 @@ class Paintbrush {
   addParticleMouseInterpolations(grid) {
     const distance = grid.mouseMoveDistance();
     const numInterpolations = Math.floor(distance / this.settings.size) + 1;
-    console.log(numInterpolations)
     const points = grid
       .mousePosition()
       .interpolatePointsBetween(
@@ -159,7 +161,7 @@ class Paintbrush {
    * @param {CanvasGrid} grid
    */
   drawMouseInterpolation(grid) {
-    if (this.shouldInterpolateMouse(grid) ) {
+    if (this.shouldInterpolateMouse(grid)) {
       grid.drawLine(
         grid.mouseX(),
         grid.mouseY(),
@@ -186,7 +188,7 @@ class Paintbrush {
    * @param {CanvasGrid} grid
    */
   drawMouseInterpolationReflections(grid) {
-    if (this.shouldInterpolateMouse(grid) && !this.settings.dynamicParticleColor) {
+    if (this.shouldInterpolateMouse(grid)) {
       const points = getReflectionPoints(
         grid.mousePosition(),
         this.settings.reflection
@@ -229,13 +231,66 @@ class Paintbrush {
    */
   updateParticle(particle, grid) {
     if (!this.settings.pauseMovement) {
-      particle.update(
+      particle.updatePrevPosition();
+      particle.applyMovementDynamic(
         this.settings.movement,
         this.settings.speed,
-        this.settings.growthSpeed
+        grid
       );
+      if (this.settings.bounce) {
+        this.bounceParticle(particle, grid);
+      }
+      if (this.settings.followMouse) {
+        this.driftToMouse(particle, grid);
+      }
+
+      particle.size = particle.size + this.settings.growthSpeed;
+      particle.age += 1;
+
+      particle.applyVelocity();
+
       this.senesceInvalidParticle(particle, grid);
     }
+  }
+
+  /**
+   * Adjust particle velocity if it hits the edge of the grid.
+   * @param {Particle} particle
+   * @param {CanvasGrid} grid
+   */
+  bounceParticle(particle, grid) {
+    const gridW = grid.width / 2;
+    const gridH = grid.height / 2;
+    const efficieny = -0.9;
+    if (particle.position.x > gridW) {
+      particle.position.x = gridW;
+      particle.velocity.x *= efficieny;
+    }
+    if (particle.position.x < gridW * -1) {
+      particle.position.x = gridW * -1;
+      particle.velocity.x *= efficieny;
+    }
+    if (particle.position.y > gridH) {
+      particle.position.y = gridH;
+      particle.velocity.y *= efficieny;
+    }
+    if (particle.position.y < gridH * -1) {
+      particle.position.y = gridH * -1;
+      particle.velocity.y *= efficieny;
+    }
+  }
+
+  /**
+   * Adjust particle velocity to move towards the mouse.
+   * @param {Particle} particle 
+   * @param {CanvasGrid} grid 
+   */
+  driftToMouse(particle, grid) {
+    const driftSpeed = this.settings.speed * 0.0005;
+    const xDif = grid.mousePosition().x - particle.position.x;
+    const yDif = grid.mousePosition().y - particle.position.y;
+    particle.velocity.x += driftSpeed * xDif;
+    particle.velocity.y += driftSpeed * yDif;
   }
 
   /**

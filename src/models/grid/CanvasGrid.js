@@ -8,7 +8,6 @@ import MouseHandler from "../inputs/MouseHandler";
  * The coordinate points are shifted such that drawing to (0, 0) is the center of the canvas.
  */
 class CanvasGrid {
- 
   /**
    * Create a new CanvasGrid.
    * @param {HTMLCanvasElement} canvasElement
@@ -47,7 +46,7 @@ class CanvasGrid {
    * Sets the stroke color of the canvas context.
    * @param {Color} color
    */
-  setFillColor(color) {
+  setStrokeColor(color) {
     this.context.strokeStyle = color.toString();
   }
 
@@ -71,20 +70,22 @@ class CanvasGrid {
    * @param {boolean} [fill = true] If true, the rectangle will be filled in.
    */
   drawRect(x, y, width, height, fill = true) {
+    const realX = Math.floor(x + this.offset.x);
+    const realY = Math.floor(y + this.offset.y);
     if (fill) {
       this.context.fillRect(
-        x + this.offset.x,
-        y + this.offset.y,
-        width,
-        height
+        realX,
+        realY,
+        Math.floor(width),
+        Math.floor(height)
       );
       return;
     }
     this.context.strokeRect(
-      x + this.offset.x,
-      y + this.offset.y,
-      width,
-      height
+      realX,
+      realY,
+      Math.floor(width),
+      Math.floor(height)
     );
   }
 
@@ -96,18 +97,14 @@ class CanvasGrid {
    * @param {boolean} [fill = true] If true, the circle will be filled in.
    */
   drawCircle(x, y, size, fill = true) {
+    const realX = Math.floor(x + this.offset.x);
+    const realY = Math.floor(y + this.offset.y);
     if (size === 1) {
-      this.context.fillRect(x + this.offset.x, y + this.offset.y, 1, 1);
+      this.context.fillRect(realX, y + realY, 1, 1);
       return;
     }
     this.context.beginPath();
-    this.context.arc(
-      x + this.offset.x,
-      y + this.offset.y,
-      size / 2,
-      0,
-      this.TAU
-    );
+    this.context.arc(realX, realY, Math.floor(size / 2), 0, this.TAU);
     this.context.stroke();
 
     if (fill) {
@@ -118,13 +115,13 @@ class CanvasGrid {
   /**
    * Draws the specified shape onto the canvas grid.
    * @param {string} shape circle or square
-   * @param {number} x 
-   * @param {number} y 
-   * @param {number} size 
-   * @param {boolean} fill 
+   * @param {number} x
+   * @param {number} y
+   * @param {number} size
+   * @param {boolean} fill
    */
   drawShape(shape, x, y, size, fill = true) {
-    if (shape === 'circle') {
+    if (shape === "circle") {
       this.drawCircle(x, y, size, fill);
       return;
     }
@@ -140,11 +137,15 @@ class CanvasGrid {
    * @param {number} thickness
    */
   drawLine(startX, startY, endX, endY, thickness) {
-    this.context.lineWidth = thickness;
+    const realXS = Math.floor(startX + this.offset.x);
+    const realYS = Math.floor(startY + this.offset.y);
+    const realXE = Math.floor(endX + this.offset.x);
+    const realYE = Math.floor(endY + this.offset.y);
+    this.context.lineWidth = Math.floor(thickness);
     this.context.lineCap = "round";
     this.context.beginPath();
-    this.context.moveTo(startX + this.offset.x, startY + this.offset.y);
-    this.context.lineTo(endX + this.offset.x, endY + this.offset.y);
+    this.context.moveTo(realXS, realYS);
+    this.context.lineTo(realXE, realYE);
     this.context.stroke();
     this.context.lineWidth = 1;
   }
@@ -222,8 +223,6 @@ class CanvasGrid {
   updateMouse() {
     this.mouse.updatePreviousState();
   }
-
-  
 }
 
 export default CanvasGrid;

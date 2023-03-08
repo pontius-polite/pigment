@@ -17,18 +17,19 @@ class Particle {
     this.timer = 0;
   }
 
+  applyMovementDynamic(movement, speed, grid) {
+    particleDynamics[movement](this, speed, grid);
+  }
+
   applyVelocity() {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
   }
 
-  update(movement, speed, growthSpeed) {
+  updatePrevPosition() {
     this.prevPosition.x = this.position.x;
     this.prevPosition.y = this.position.y;
-    particleDynamics[movement](this, speed);
-    this.size = Math.floor(this.size + growthSpeed);
-    this.age += 1;
-  } 
+  }
 }
 
 export default Particle;

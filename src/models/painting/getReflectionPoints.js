@@ -29,6 +29,7 @@ const reflectionFormulas = {
 
 /**
  * Utility function for reflecting points around an origin (0, 0).
+ * Points are returned with integer coordinates.
  * @param {Point} point The point to reflect.
  * @param {Object} reflection Contains type and amount fields.  
  * @returns {Point[]} The reflected points.
