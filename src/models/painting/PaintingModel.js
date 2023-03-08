@@ -2,9 +2,9 @@ import CanvasGrid from "../grid/CanvasGrid";
 import KeyHandler from "../inputs/KeyHandler";
 import Paintbrush from "./Paintbrush";
 import Color from "../color/Color";
-import ColorGenerator from "../color/ColorGenerator";
 import FrameTimer from "../../timing/FrameTimer";
 import DebugView from "../debug/DebugView";
+
 
 /**
  * Abstraction of the user's drawing. Handles state, updates, and canvas drawing.
@@ -50,7 +50,8 @@ class PaintingModel {
       this.update();
     }, this.targetDelta);
 
-    this.backgroundElement.style.backgroundColor =  this.backgroundColor.toString();
+    this.backgroundElement.style.backgroundColor =
+      this.backgroundColor.toString();
     this.brush.updateAndDraw(this.grid);
     this.trimPaintbrushForPerformance(100);
     this.grid.updateMouse();
@@ -61,6 +62,10 @@ class PaintingModel {
 
   trimPaintbrushForPerformance(amount) {
     if (this.averageDelta > 38) {
+      console.log("Performance: ", {
+        particles: this.brush.particles.length,
+        delta: this.frameTimer.currentDelta,
+      });
       this.brush.particles.splice(0, amount);
     }
   }
@@ -71,13 +76,12 @@ class PaintingModel {
   updateBackgroundColor() {
     if (this.dynamicBackroundColor) {
       this.backgroundColor = this.backgroundColorGen.newColor();
-      
     }
   }
 
   updateDebugDisplay() {
     this.debugView.update({
-      paused: this.brush. settings.pauseMovement,
+      paused: this.brush.settings.pauseMovement,
       updates: this.brush.updates,
       "update time": this.averageDelta,
       FPS: Math.floor(1000 / this.averageDelta),

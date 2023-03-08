@@ -6,7 +6,9 @@
 const functionTimer = (f) => {
   const start = Date.now();
   f();
-  return (Date.now() - start);
+  const end = Date.now();
+  console.log(`${f.name} - ${end - start}`);
+  return (end - start);
 }
 
 module.exports = functionTimer;

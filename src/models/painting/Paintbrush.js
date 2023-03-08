@@ -4,6 +4,9 @@ import Particle from "./Particle";
 
 import getReflectionPoints from "./getReflectionPoints";
 
+import functionTimer from "../../utils/functionTimer";
+
+
 /** Handles particle behavior and drawing. */
 class Paintbrush {
   constructor() {
@@ -12,12 +15,12 @@ class Paintbrush {
       pauseMovement: false,
 
       size: 1,
-      growthSpeed: 1,
+      growthSpeed: 0,
       shape: "circle", 
       outline: false,
 
       speed: 1,
-      movement: "fountain",
+      movement: "creep",
       bounce: true,
       followMouse: false,
 
@@ -44,8 +47,8 @@ class Paintbrush {
 
       lifespan: Math.floor(10 * 30),
 
-      interpolateMouse: false,
-      interpolateParticles: true,
+      interpolateMouse: true,
+      interpolateParticles: false,
     };
 
     this.brushColorGenerator = this.createBrushColorGenerator();

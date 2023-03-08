@@ -100,7 +100,7 @@ class CanvasGrid {
     const realX = Math.floor(x + this.offset.x);
     const realY = Math.floor(y + this.offset.y);
     if (size === 1) {
-      this.context.fillRect(realX, y + realY, 1, 1);
+      this.context.fillRect(realX, realY, 1, 1);
       return;
     }
     this.context.beginPath();

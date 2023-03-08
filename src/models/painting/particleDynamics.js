@@ -21,7 +21,7 @@ const particleDynamics = {
   },
   crystal: (p, speed) => {
     const s = speed * 1;
-    if (p.timer == 0) {
+    if (p.timer === 0) {
       let coin = randomInt(0, 1);
       if (coin) {
         p.velocity.x = s;
@@ -41,7 +41,7 @@ const particleDynamics = {
   },
   tesseract: (p, speed) => {
     const s = speed * 1;
-    if (p.timer == 0) {
+    if (p.timer === 0) {
       p.velocity.x = randomInt(-1, 1) * s;
       p.velocity.y = randomInt(-1, 1) * s;
       p.timer = randomInt(60, 70);
@@ -59,7 +59,7 @@ const particleDynamics = {
   },
   fountain: (p, speed) => {
     const s = speed * 3;
-    if (p.age === 1) {
+    if (p.age <= 1) {
       p.velocity.x = randomNum(s * -1, s);
       p.velocity.y = randomNum(s * -1, s);
     }
@@ -75,6 +75,17 @@ const particleDynamics = {
       p.position.x * Math.sin(theta) + p.position.y * Math.cos(theta);
     p.applyVelocity();
   },
+  tree: (p, speed) => {
+    const s = speed;
+    if (p.timer === 0) {
+      const theta = randomNum(0, Math.PI * 2);
+      p.velocity.x = s * Math.cos(theta);
+      p.velocity.y = s * Math.sin(theta);
+      p.timer = randomInt(20, 30);
+    }
+    p.applyVelocity();
+    p.timer -= 1;
+  }
 };
 
 export default particleDynamics;
