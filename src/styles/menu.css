@@ -20,6 +20,8 @@
 
 .menu-nav-button-container {
   margin-left: auto;
+  display: flex;
+  flex-direction: row;
 }
 
 .menu-button {

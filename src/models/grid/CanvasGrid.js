@@ -50,12 +50,16 @@ class CanvasGrid {
     this.context.strokeStyle = color.toString();
   }
 
+  dimensions() {
+    return {width: this.width, height: this.height};
+  }
+
   /**
    * Draws a square centered at (x, y).
    * @param {number} x
    * @param {number} y
    * @param {number} size The side length of the square.
-   * @param {boolean} [fill = true] If true, the square will be filled in.
+   * @param {boolean} fill If true, the square will be filled in.
    */
   drawSquare(x, y, size, fill = true) {
     this.drawRect(x, y, size, size, fill);
@@ -67,23 +71,23 @@ class CanvasGrid {
    * @param {number} y
    * @param {number} width
    * @param {number} height
-   * @param {boolean} [fill = true] If true, the rectangle will be filled in.
+   * @param {boolean} fill If true, the rectangle will be filled in.
    */
-  drawRect(x, y, width, height, fill = true) {
+  drawRect(x, y, width, height, fill) {
     const realX = Math.floor(x + this.offset.x);
     const realY = Math.floor(y + this.offset.y);
     if (fill) {
       this.context.fillRect(
-        realX,
-        realY,
+        realX - Math.floor(width / 2),
+        realY - Math.floor(height / 2),
         Math.floor(width),
         Math.floor(height)
       );
       return;
     }
     this.context.strokeRect(
-      realX,
-      realY,
+      realX - Math.floor(width / 2),
+      realY - Math.floor(height / 2),
       Math.floor(width),
       Math.floor(height)
     );
@@ -94,20 +98,26 @@ class CanvasGrid {
    * @param {number} x
    * @param {number} y
    * @param {number} size The diameter of the circle.
-   * @param {boolean} [fill = true] If true, the circle will be filled in.
+   * @param {boolean} fill If true, the circle will be filled in.
    */
-  drawCircle(x, y, size, fill = true) {
+  drawCircle(x, y, size, fill) {
+    
     const realX = Math.floor(x + this.offset.x);
     const realY = Math.floor(y + this.offset.y);
+    
     if (size === 1) {
       this.context.fillRect(realX, realY, 1, 1);
       return;
     }
+
+    this.context.fillRect(realX, realY, size, size);
+    return;
+    
     this.context.beginPath();
     this.context.arc(realX, realY, Math.floor(size / 2), 0, this.TAU);
     this.context.stroke();
 
-    if (fill) {
+    if (true) {
       this.context.fill();
     }
   }
@@ -120,7 +130,7 @@ class CanvasGrid {
    * @param {number} size
    * @param {boolean} fill
    */
-  drawShape(shape, x, y, size, fill = true) {
+  drawShape(shape, x, y, size, fill) {
     if (shape === "circle") {
       this.drawCircle(x, y, size, fill);
       return;
@@ -177,6 +187,7 @@ class CanvasGrid {
     );
     this.canvas.width = newWidth;
     this.canvas.height = newHeight;
+    this.context = this.canvas.getContext('2d');
 
     this.context.clearRect(0, 0, newWidth, newHeight);
     this.context.drawImage(tempCanvas, widthOffset, heightOffset);
@@ -216,12 +227,20 @@ class CanvasGrid {
     return this.mouse.pressed;
   }
 
+  mousePreviousPressed() {
+    return this.mouse.previous.pressed;
+  }
+
   mouseMoveDistance() {
     return this.mousePosition().distanceFrom(this.mousePreviousPosition());
   }
 
-  updateMouse() {
-    this.mouse.updatePreviousState();
+  updateMousePosition() {
+    this.mouse.updatePreviousPosition();
+  }
+
+  updateMousePressed() {
+    this.mouse.updatePreviousPressed();
   }
 }
 

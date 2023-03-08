@@ -26,9 +26,12 @@ class MouseHandler {
     });
   }
 
-  updatePreviousState() {
+  updatePreviousPosition() {
     this.previous.position.x = this.position.x;
     this.previous.position.y = this.position.y;
+  }
+
+  updatePreviousPressed() {
     this.previous.pressed = this.pressed;
   }
 }

@@ -6,21 +6,26 @@ import getReflectionPoints from "./getReflectionPoints";
 
 import functionTimer from "../../utils/functionTimer";
 
-
 /** Handles particle behavior and drawing. */
 class Paintbrush {
-  constructor() {
+  /**
+   * Create a new PaintBrush.
+   * @param {CanvasGrid} grid
+   */
+  constructor(grid) {
+    this.grid = grid;
     this.particles = [];
+
     this.settings = {
       pauseMovement: false,
 
-      size: 1,
-      growthSpeed: 0,
-      shape: "circle", 
+      size: 100,
+      growth: 0,
+      shape: "shape",
       outline: false,
 
       speed: 1,
-      movement: "creep",
+      movement: "none",
       bounce: true,
       followMouse: false,
 
@@ -47,7 +52,7 @@ class Paintbrush {
 
       lifespan: Math.floor(10 * 30),
 
-      interpolateMouse: true,
+      interpolateMouse: false,
       interpolateParticles: false,
     };
 
@@ -69,50 +74,47 @@ class Paintbrush {
    * @param {CanvasGrid} grid
    * @param {boolean} pauseMovement Pauses movement of particles if true.
    */
-  updateAndDraw(grid) {
-    this.updateColor(grid);
-    grid.setColor(this.settings.brushColor);
-
-    this.addNewParticles(grid);
-    this.drawMouseInterpolation(grid);
-    this.updateAndDrawParticles(grid);
+  updateAndDraw() {
+    this.updateBrushColor();
+    this.addNewParticles();
+    //this.drawMouseInterpolation();
+    this.updateAndDrawParticles();
 
     this.updates += 1;
   }
 
   /**
    * Updates the paintbrush color if the mouse is pressed.
-   * @param {CanvasGrid} grid
    */
-  updateColor(grid) {
-    if (this.settings.dynamicBrushColor && grid.mousePressed()) {
+  updateBrushColor() {
+    if (this.settings.dynamicBrushColor && this.grid.mousePressed()) {
       this.settings.brushColor = this.brushColorGenerator.newColor();
+      this.grid.setColor(this.settings.brushColor);
     }
   }
 
   /**
    * Adds new particles based on mouse state and interpolates between them, if needed.
-   * @param {CanvasGrid} grid
    */
-  addNewParticles(grid) {
-    if (grid.mousePressed()) {
-      this.addParticle(grid.mousePosition());
+  addNewParticles() {
+    if (this.grid.mousePressed()) {
+      this.addParticle(this.grid.mousePosition());
 
-      if (this.shouldInterpolateMouse(grid)) {
-        this.addParticleMouseInterpolations(grid);
+      if (this.shouldInterpolateMouse()) {
+        this.addParticleMouseInterpolations();
       }
+      
     }
   }
 
   /**
    * Returns true if the mouse movements should be interpolated.
-   * @param {CanvasGrid} grid
    */
-  shouldInterpolateMouse(grid) {
+  shouldInterpolateMouse() {
     return (
       this.settings.interpolateMouse &&
-      grid.mouse.pressed &&
-      grid.mouse.previous.pressed
+      this.grid.mousePressed() &&
+      this.grid.mousePreviousPressed()
     );
   }
 
@@ -143,15 +145,14 @@ class Paintbrush {
 
   /**
    * Adds particles between current and previous mouse positions.
-   * @param {CanvasGrid} grid
    */
-  addParticleMouseInterpolations(grid) {
-    const distance = grid.mouseMoveDistance();
+  addParticleMouseInterpolations() {
+    const distance = this.grid.mouseMoveDistance();
     const numInterpolations = Math.floor(distance / this.settings.size) + 1;
-    const points = grid
+    const points = this.grid
       .mousePosition()
       .interpolatePointsBetween(
-        grid.mousePreviousPosition(),
+        this.grid.mousePreviousPosition(),
         numInterpolations
       );
     for (let point of points) {
@@ -163,17 +164,17 @@ class Paintbrush {
    * Draws a line between current and previous mouse positions.
    * @param {CanvasGrid} grid
    */
-  drawMouseInterpolation(grid) {
-    if (this.shouldInterpolateMouse(grid)) {
-      grid.drawLine(
-        grid.mouseX(),
-        grid.mouseY(),
-        grid.mousePreviousX(),
-        grid.mousePreviousY(),
+  drawMouseInterpolation() {
+    if (this.shouldInterpolateMouse()) {
+      this.grid.drawLine(
+        this.grid.mouseX(),
+        this.grid.mouseY(),
+        this.grid.mousePreviousX(),
+        this.grid.mousePreviousY(),
         this.settings.size
       );
       if (this.shouldReflectionBeDrawn()) {
-        this.drawMouseInterpolationReflections(grid);
+        this.drawMouseInterpolationReflections();
       }
     }
   }
@@ -188,22 +189,21 @@ class Paintbrush {
 
   /**
    * Draws reflected interpolations of the mouse movement.
-   * @param {CanvasGrid} grid
    */
-  drawMouseInterpolationReflections(grid) {
-    if (this.shouldInterpolateMouse(grid)) {
+  drawMouseInterpolationReflections() {
+    if (this.shouldInterpolateMouse()) {
       const points = getReflectionPoints(
-        grid.mousePosition(),
+        this.grid.mousePosition(),
         this.settings.reflection
       );
       const prevPoints = getReflectionPoints(
-        grid.mousePreviousPosition(),
+        this.grid.mousePreviousPosition(),
         this.settings.reflection
       );
       for (let i = 0; i < points.length; i += 1) {
         const point = points[i];
         const prevPoint = prevPoints[i];
-        grid.drawLine(
+        this.grid.drawLine(
           point.x,
           point.y,
           prevPoint.x,
@@ -217,42 +217,38 @@ class Paintbrush {
   /**
    * Updates particle positions according to current movement style and draws them
    * to the canvas grid.
-   * @param {CanvasGrid} grid
    */
-  updateAndDrawParticles(grid) {
+  updateAndDrawParticles() {
     for (let particle of this.particles) {
-      this.updateParticle(particle, grid);
-      this.drawParticle(particle, grid);
+      this.updateParticle(particle);
+      this.drawParticle(particle);
     }
-    this.removeDeadParticles();
+    // FIXME: this.removeDeadParticles();
   }
 
   /**
    * Updates particle position and age.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
+
    */
-  updateParticle(particle, grid) {
+  updateParticle(particle) {
     if (!this.settings.pauseMovement) {
       particle.updatePrevPosition();
       particle.applyMovementDynamic(
         this.settings.movement,
-        this.settings.speed,
-        grid
+        this.settings.speed
       );
       if (this.settings.bounce) {
-        this.bounceParticle(particle, grid);
+        this.bounceParticle(particle);
       }
       if (this.settings.followMouse) {
-        this.driftToMouse(particle, grid);
+        this.driftToMouse(particle);
       }
 
-      particle.size = particle.size + this.settings.growthSpeed;
+      particle.size += this.settings.growth;
       particle.age += 1;
 
-      particle.applyVelocity();
-
-      this.senesceInvalidParticle(particle, grid);
+      this.senesceInvalidParticle(particle);
     }
   }
 
@@ -261,37 +257,37 @@ class Paintbrush {
    * @param {Particle} particle
    * @param {CanvasGrid} grid
    */
-  bounceParticle(particle, grid) {
-    const gridW = grid.width / 2;
-    const gridH = grid.height / 2;
+  bounceParticle(particle) {
+    const gridHorizontalBound = this.grid.width / 2;
+    const gridVerticalBound = this.grid.height / 2;
+    const offset = particle.size / 2
     const efficieny = -0.9;
-    if (particle.position.x > gridW) {
-      particle.position.x = gridW;
+    if (particle.position.x > gridHorizontalBound) {
+      particle.position.x = gridHorizontalBound;
       particle.velocity.x *= efficieny;
     }
-    if (particle.position.x < gridW * -1) {
-      particle.position.x = gridW * -1;
+    if (particle.position.x < gridHorizontalBound * -1) {
+      particle.position.x = gridHorizontalBound * -1;
       particle.velocity.x *= efficieny;
     }
-    if (particle.position.y > gridH) {
-      particle.position.y = gridH;
+    if (particle.position.y > gridVerticalBound) {
+      particle.position.y = gridVerticalBound;
       particle.velocity.y *= efficieny;
     }
-    if (particle.position.y < gridH * -1) {
-      particle.position.y = gridH * -1;
+    if (particle.position.y < gridVerticalBound * -1) {
+      particle.position.y = gridVerticalBound * -1;
       particle.velocity.y *= efficieny;
     }
   }
 
   /**
    * Adjust particle velocity to move towards the mouse.
-   * @param {Particle} particle 
-   * @param {CanvasGrid} grid 
+   * @param {Particle} particle
    */
-  driftToMouse(particle, grid) {
+  driftToMouse(particle) {
     const driftSpeed = this.settings.speed * 0.0005;
-    const xDif = grid.mousePosition().x - particle.position.x;
-    const yDif = grid.mousePosition().y - particle.position.y;
+    const xDif = this.grid.mousePosition().x - particle.position.x;
+    const yDif = this.grid.mousePosition().y - particle.position.y;
     particle.velocity.x += driftSpeed * xDif;
     particle.velocity.y += driftSpeed * yDif;
   }
@@ -301,14 +297,13 @@ class Paintbrush {
    * lifespan. Particles are invalid if their position is too far out of bounds or their
    * size too small/large.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
    */
-  senesceInvalidParticle(particle, grid) {
+  senesceInvalidParticle(particle) {
     const shouldParticleDie =
       particle.size <= 0 ||
-      Math.max(grid.width, grid.height) < particle.size ||
-      Math.abs(particle.position.x) > grid.width ||
-      Math.abs(particle.position.y) > grid.height;
+      Math.max(this.grid.width, this.grid.height) < particle.size ||
+      Math.abs(particle.position.x) > this.grid.width ||
+      Math.abs(particle.position.y) > this.grid.height;
 
     if (shouldParticleDie) {
       particle.age = this.settings.lifespan;
@@ -318,45 +313,43 @@ class Paintbrush {
   /**
    * Draws the particle onto the grid and interpolates its movement with a line.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
    */
-  drawParticle(particle, grid) {
-    this.setGridColor(particle, grid);
-    grid.drawShape(
-      this.settings.shape,
-      particle.position.x,
-      particle.position.y,
-      particle.size,
-      !this.settings.outline
-    );
-    this.drawParticleMovementInterpolation(particle, grid);
+  drawParticle(particle) {
+    if (!this.settings.useBrushColor) {
+      this.applyParticleColorToGrid(particle);
+    }
+    this.grid.drawSquare(particle.position.x, particle.position.y, particle.size, !this.settings.outline)
+    // this.grid.drawShape(
+    //   this.settings.shape,
+    //   particle.position.x,
+    //   particle.position.y,
+    //   particle.size,
+    //   !this.settings.outline
+    // );
+    this.drawParticleMovementInterpolation(particle);
     if (this.shouldReflectionBeDrawn()) {
-      this.drawParticleReflections(particle, grid);
+      this.drawParticleReflections(particle);
     }
   }
 
   /**
    * Sets the color of the grid for drawing particles and reflections.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
    */
-  setGridColor(particle, grid) {
-    if (!this.settings.useBrushColor) {
-      if (this.settings.dynamicParticleColor && particle.colorGenerator) {
-        particle.color = particle.colorGenerator.newColor();
-      }
-      grid.setColor(particle.color);
+  applyParticleColorToGrid(particle) {
+    if (this.settings.dynamicParticleColor && particle.colorGenerator) {
+      particle.color = particle.colorGenerator.newColor();
     }
+    this.grid.setColor(particle.color);
   }
 
   /**
    * Draws a line between the particle's current and previous positions.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
    */
-  drawParticleMovementInterpolation(particle, grid) {
-    if (this.settings.interpolateParticles) {
-      grid.drawLine(
+  drawParticleMovementInterpolation(particle) {
+    if (this.settings.interpolateParticles && particle.hasMoved()) {
+      this.grid.drawLine(
         particle.prevPosition.x,
         particle.prevPosition.y,
         particle.position.x,
@@ -369,9 +362,8 @@ class Paintbrush {
   /**
    * Draws reflections of particle.
    * @param {Particle} particle
-   * @param {CanvasGrid} grid
    */
-  drawParticleReflections(particle, grid) {
+  drawParticleReflections(particle) {
     const points = getReflectionPoints(
       particle.position,
       this.settings.reflection
@@ -379,7 +371,7 @@ class Paintbrush {
 
     // Interpolate reflected particle movements per setting.
     let prevPoints = null;
-    if (this.settings.interpolateParticles) {
+    if (this.settings.interpolateParticles && particle.hasMoved()) {
       prevPoints = getReflectionPoints(
         particle.prevPosition,
         this.settings.reflection
@@ -388,11 +380,11 @@ class Paintbrush {
 
     for (let i = 0; i < points.length; i += 1) {
       const point = points[i];
-      this.drawParticleCopy(particle, point, grid);
+      this.drawParticleCopy(particle, point);
 
       if (prevPoints) {
         const prevPoint = prevPoints[i];
-        grid.drawLine(
+        this.grid.drawLine(
           prevPoint.x,
           prevPoint.y,
           point.x,
@@ -407,10 +399,9 @@ class Paintbrush {
    * Draws copy of the particle to the given point location.
    * @param {Particle} particle
    * @param {Point} point
-   * @param {CanvasGrid} grid
    */
-  drawParticleCopy(particle, point, grid) {
-    grid.drawShape(
+  drawParticleCopy(particle, point) {
+    this.grid.drawShape(
       this.settings.shape,
       point.x,
       point.y,
@@ -425,10 +416,10 @@ class Paintbrush {
   removeDeadParticles() {
     let i = 0;
     if (this.particles.length > 0) {
-      while (
-        i < this.particles.length &&
-        this.particles[i].age >= this.settings.lifespan
-      ) {
+      const shouldIncrement =
+        i < this.particles.length && //i < 10 &&
+        this.particles[i].age >= this.settings.lifespan;
+      while (shouldIncrement) {
         i += 1;
       }
       this.particles.splice(0, i);

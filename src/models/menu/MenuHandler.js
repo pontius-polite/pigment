@@ -77,7 +77,8 @@ class MenuHandler {
     const props = {
       "brush-speed": this.brush.settings.speed,
       "brush-size": this.brush.settings.size,
-      "brush-growth": this.brush.settings.growthSpeed,
+      "brush-growth": this.brush.settings.growth,
+      "brush-outline": this.brush.settings.outline,
       "brush-bounce": this.brush.settings.bounce,
       "brush-gravity-mouse": this.brush.settings.followMouse,
       "color-background": this.painting.backgroundColor.toString(),

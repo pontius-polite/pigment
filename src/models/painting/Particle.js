@@ -30,6 +30,10 @@ class Particle {
     this.prevPosition.x = this.position.x;
     this.prevPosition.y = this.position.y;
   }
+
+  hasMoved() {
+    return this.position.equals(this.prevPosition);
+  }
 }
 
 export default Particle;

@@ -5,7 +5,6 @@ import Color from "../color/Color";
 import FrameTimer from "../../timing/FrameTimer";
 import DebugView from "../debug/DebugView";
 
-
 /**
  * Abstraction of the user's drawing. Handles state, updates, and canvas drawing.
  */
@@ -13,55 +12,64 @@ class PaintingModel {
   constructor(canvasElement, backgroundElement) {
     this.grid = new CanvasGrid(canvasElement);
     this.backgroundElement = backgroundElement;
-    this.brush = new Paintbrush();
+    this.brush = new Paintbrush(this.grid);
 
     this.debugView = new DebugView();
-    this.frameTimer = new FrameTimer(20);
-    this.targetFPS = 30;
-    this.targetDelta = Math.floor(1000 / this.targetFPS - 1);
+    this.debugSampleRate = 10;
+
+    this.frameTimer = new FrameTimer(this.debugSampleRate);
+    this.lastFrame = 0;
+    this.updateTimer = new FrameTimer(this.debugSampleRate);
+    this.targetUPS = 40;
+    this.targetDelta = 1000 / (this.targetUPS);
     this.averageDelta = 0;
+    this.updates = 0;
 
     this.backgroundColor = new Color(251, 33, 8);
 
     this.keys = new KeyHandler({
-      " ": () => {
-        const isPaused = this.brush.settings.pauseMovement;
-        this.brush.settings.pauseMovement = !isPaused;
-      },
-      d: () => {
-        this.debugView.toggle();
-      },
-      c: () => {
-        this.clear();
-      },
+      " ": () => this.handlePause(),
+      d: () => this.debugView.toggle(),
+      c: () => this.clear(),
     });
   }
 
-  start() {
+  init() {
     this.resize();
     this.backgroundElement.style.backgroundColor =
       this.backgroundColor.toString();
-    this.update();
+    this.updateAndRender();
   }
 
   /** The main update loop.  */
-  update() {
-    setTimeout(() => {
-      this.update();
-    }, this.targetDelta);
-
-    this.backgroundElement.style.backgroundColor =
-      this.backgroundColor.toString();
-    this.brush.updateAndDraw(this.grid);
-    this.trimPaintbrushForPerformance(100);
-    this.grid.updateMouse();
-    this.updateDebugDisplay();
+  updateAndRender() {
+    window.requestAnimationFrame(() => this.updateAndRender());
     this.frameTimer.update();
-    this.averageDelta = this.frameTimer.averageDelta();
+    this.grid.updateMousePressed();
+    
+    const updateDelta = this.frameTimer.frameStartTime - this.lastFrame;
+    if (updateDelta > this.targetDelta) {
+      this.lastFrame = Date.now();
+      this.updateTimer.update();
+      this.averageDelta = this.updateTimer.averageDelta();
+      
+      //this.trimPaintbrushForPerformance();
+      this.brush.updateAndDraw();
+      
+      this.grid.updateMousePosition();
+      if (this.updates % this.debugSampleRate === 0) {
+        this.updateDebugDisplay();
+      }
+      this.updates += 1;
+    }     
+  }
+
+  handlePause() {
+    this.brush.settings.pauseMovement = !this.brush.settings.pauseMovement;
   }
 
   trimPaintbrushForPerformance(amount) {
-    if (this.averageDelta > 38) {
+    if (this.averageDelta > this.targetUPS) {
       console.log("Performance: ", {
         particles: this.brush.particles.length,
         delta: this.frameTimer.currentDelta,
@@ -81,10 +89,11 @@ class PaintingModel {
 
   updateDebugDisplay() {
     this.debugView.update({
-      paused: this.brush.settings.pauseMovement,
-      updates: this.brush.updates,
+      FPS: Math.floor(1000 / this.frameTimer.averageDelta()),
+      UPS: Math.floor(1000 / this.averageDelta),
       "update time": this.averageDelta,
-      FPS: Math.floor(1000 / this.averageDelta),
+      updates: this.brush.updates,
+      paused: this.brush.settings.pauseMovement,
       dimensions: `${this.grid.width} x ${this.grid.height}`,
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),

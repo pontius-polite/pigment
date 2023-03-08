@@ -5,12 +5,18 @@
  * @returns {number}
  */
 export const randomInt = (min, max) => {
-  console.assert(min < max);
+  console.assert(min <= max);
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+/**
+ * Returns a random number between min (inclusive) and max (exclusive).
+ * @param {number} min 
+ * @param {number} max 
+ * @returns {number}
+ */
 export const randomNum = (min, max) => {
-  console.assert(min < max);
+  console.assert(min <= max);
   return Math.random() * (max - min) + min;
 }
 
