@@ -19,13 +19,13 @@ class Paintbrush {
     this.settings = {
       pauseMovement: false,
 
-      size: 100,
+      size: 6,
       growth: 0,
-      shape: "shape",
-      outline: false,
+      shape: "circle",
+      outline: true,
 
       speed: 1,
-      movement: "none",
+      movement: "creep",
       bounce: true,
       followMouse: false,
 
@@ -52,8 +52,8 @@ class Paintbrush {
 
       lifespan: Math.floor(10 * 30),
 
-      interpolateMouse: false,
-      interpolateParticles: false,
+      interpolateMouse: true,
+      interpolateParticles: true,
     };
 
     this.brushColorGenerator = this.createBrushColorGenerator();
@@ -77,7 +77,7 @@ class Paintbrush {
   updateAndDraw() {
     this.updateBrushColor();
     this.addNewParticles();
-    //this.drawMouseInterpolation();
+    this.drawMouseInterpolation();
     this.updateAndDrawParticles();
 
     this.updates += 1;
@@ -165,7 +165,7 @@ class Paintbrush {
    * @param {CanvasGrid} grid
    */
   drawMouseInterpolation() {
-    if (this.shouldInterpolateMouse()) {
+    if (this.shouldInterpolateMouse() && !this.settings.outline) {
       this.grid.drawLine(
         this.grid.mouseX(),
         this.grid.mouseY(),
@@ -318,14 +318,7 @@ class Paintbrush {
     if (!this.settings.useBrushColor) {
       this.applyParticleColorToGrid(particle);
     }
-    this.grid.drawSquare(particle.position.x, particle.position.y, particle.size, !this.settings.outline)
-    // this.grid.drawShape(
-    //   this.settings.shape,
-    //   particle.position.x,
-    //   particle.position.y,
-    //   particle.size,
-    //   !this.settings.outline
-    // );
+    this.grid.drawShape(this.settings.shape, particle.position.x, particle.position.y, particle.size, !this.settings.outline)
     this.drawParticleMovementInterpolation(particle);
     if (this.shouldReflectionBeDrawn()) {
       this.drawParticleReflections(particle);
@@ -348,7 +341,7 @@ class Paintbrush {
    * @param {Particle} particle
    */
   drawParticleMovementInterpolation(particle) {
-    if (this.settings.interpolateParticles && particle.hasMoved()) {
+    if (this.settings.interpolateParticles && !this.settings.outline && particle.hasMoved()) {
       this.grid.drawLine(
         particle.prevPosition.x,
         particle.prevPosition.y,

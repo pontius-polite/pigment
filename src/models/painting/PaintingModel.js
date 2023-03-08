@@ -15,17 +15,20 @@ class PaintingModel {
     this.brush = new Paintbrush(this.grid);
 
     this.debugView = new DebugView();
-    this.debugSampleRate = 10;
+    this.debugSampleRate = 5;
 
     this.frameTimer = new FrameTimer(this.debugSampleRate);
-    this.lastFrame = 0;
+    this.lastUpdate = 0;
     this.updateTimer = new FrameTimer(this.debugSampleRate);
-    this.targetUPS = 40;
+    this.targetUPS = 30;
     this.targetDelta = 1000 / (this.targetUPS);
     this.averageDelta = 0;
     this.updates = 0;
 
-    this.backgroundColor = new Color(251, 33, 8);
+    this.settings = {
+      backgroundColor: new Color(251, 33, 8),
+      dynamicallyRemoveParticles: false,
+    }
 
     this.keys = new KeyHandler({
       " ": () => this.handlePause(),
@@ -37,7 +40,7 @@ class PaintingModel {
   init() {
     this.resize();
     this.backgroundElement.style.backgroundColor =
-      this.backgroundColor.toString();
+      this.settings.backgroundColor.toString();
     this.updateAndRender();
   }
 
@@ -45,21 +48,21 @@ class PaintingModel {
   updateAndRender() {
     window.requestAnimationFrame(() => this.updateAndRender());
     this.frameTimer.update();
+    
     this.grid.updateMousePressed();
     
-    const updateDelta = this.frameTimer.frameStartTime - this.lastFrame;
+    const updateDelta = this.frameTimer.start - this.lastUpdate;
     if (updateDelta > this.targetDelta) {
-      this.lastFrame = Date.now();
+      this.lastUpdate = Date.now();
       this.updateTimer.update();
-      this.averageDelta = this.updateTimer.averageDelta();
-      
-      //this.trimPaintbrushForPerformance();
+
+      this.trimPaintbrushForPerformance();
       this.brush.updateAndDraw();
-      
       this.grid.updateMousePosition();
       if (this.updates % this.debugSampleRate === 0) {
         this.updateDebugDisplay();
       }
+      
       this.updates += 1;
     }     
   }
@@ -68,13 +71,14 @@ class PaintingModel {
     this.brush.settings.pauseMovement = !this.brush.settings.pauseMovement;
   }
 
-  trimPaintbrushForPerformance(amount) {
-    if (this.averageDelta > this.targetUPS) {
-      console.log("Performance: ", {
-        particles: this.brush.particles.length,
-        delta: this.frameTimer.currentDelta,
-      });
-      this.brush.particles.splice(0, amount);
+  trimPaintbrushForPerformance() {
+    if (this.settings.dynamicallyRemoveParticles) {
+      const diff = this.updateTimer.currentDelta - this.targetDelta;
+      if (diff > 10) {
+        const amount = Math.floor(diff * 10 + 20);
+        console.log(`Removing ${amount} particles impacting performance`);
+        this.brush.particles.splice(0, amount);
+      }
     }
   }
 
@@ -83,15 +87,16 @@ class PaintingModel {
    */
   updateBackgroundColor() {
     if (this.dynamicBackroundColor) {
-      this.backgroundColor = this.backgroundColorGen.newColor();
+      this.settings.backgroundColor = this.backgroundColorGen.newColor();
     }
   }
 
   updateDebugDisplay() {
     this.debugView.update({
-      FPS: Math.floor(1000 / this.frameTimer.averageDelta()),
-      UPS: Math.floor(1000 / this.averageDelta),
-      "update time": this.averageDelta,
+      FPS: Math.floor(1000 / this.frameTimer.currentDelta),
+      UPS: Math.floor(1000 / this.updateTimer.currentDelta),
+      'target time': Math.floor(this.targetDelta),
+      "update time": this.updateTimer.currentDelta,
       updates: this.brush.updates,
       paused: this.brush.settings.pauseMovement,
       dimensions: `${this.grid.width} x ${this.grid.height}`,
@@ -99,7 +104,7 @@ class PaintingModel {
       "mouse down": this.grid.mousePressed(),
       particles: this.brush.particles.length,
       "particle color": this.brush.settings.brushColor.toString(),
-      "background color": this.backgroundColor.toString(),
+      "background color": this.settings.backgroundColor.toString(),
     });
   }
 

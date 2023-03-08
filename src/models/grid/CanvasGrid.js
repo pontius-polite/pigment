@@ -101,7 +101,6 @@ class CanvasGrid {
    * @param {boolean} fill If true, the circle will be filled in.
    */
   drawCircle(x, y, size, fill) {
-    
     const realX = Math.floor(x + this.offset.x);
     const realY = Math.floor(y + this.offset.y);
     
@@ -109,15 +108,13 @@ class CanvasGrid {
       this.context.fillRect(realX, realY, 1, 1);
       return;
     }
-
-    this.context.fillRect(realX, realY, size, size);
-    return;
     
+    const radius = Math.floor(size / 2);
     this.context.beginPath();
-    this.context.arc(realX, realY, Math.floor(size / 2), 0, this.TAU);
+    this.context.arc(realX, realY, radius, 0, Math.PI * 2);
     this.context.stroke();
 
-    if (true) {
+    if (fill) {
       this.context.fill();
     }
   }

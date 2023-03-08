@@ -81,7 +81,7 @@ class MenuHandler {
       "brush-outline": this.brush.settings.outline,
       "brush-bounce": this.brush.settings.bounce,
       "brush-gravity-mouse": this.brush.settings.followMouse,
-      "color-background": this.painting.backgroundColor.toString(),
+      "color-background": this.painting.settings.backgroundColor.toString(),
       "color-brush": this.brush.settings.color,
       "color-brush-dynamic-preset": null, //TODO: make presets for the color gen
       "color-brush-dynamic-speed": this.brush.settings.brushColorGen.speed,
@@ -100,6 +100,7 @@ class MenuHandler {
       "performance-interpolate-mouse": this.brush.settings.interpolateMouse,
       "performance-interpolate-particles":
         this.brush.settings.interpolateParticles,
+      "performance-dynamic-particle-removal": this.painting.settings.dynamicallyRemoveParticles,
     };
     return props;
   }
