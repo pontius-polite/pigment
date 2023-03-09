@@ -20,19 +20,20 @@ class Paintbrush {
       pauseMovement: false,
 
       size: 6,
+      MAX_SIZE: 200,
       growth: 0,
       shape: "circle",
-      outline: true,
+      outline: false,
 
       speed: 1,
       movement: "creep",
-      bounce: true,
+      bounce: false,
       followMouse: false,
 
       brushColor: new Color(194, 100, 50),
       brushColorGen: {
         style: "cycleHue",
-        speed: 2,
+        speed: 1,
         interval: 1,
       },
       dynamicBrushColor: true,
@@ -50,7 +51,7 @@ class Paintbrush {
         amount: 8,
       },
 
-      lifespan: Math.floor(10 * 30),
+      lifespan: 240,
 
       interpolateMouse: true,
       interpolateParticles: true,
@@ -103,7 +104,6 @@ class Paintbrush {
       if (this.shouldInterpolateMouse()) {
         this.addParticleMouseInterpolations();
       }
-      
     }
   }
 
@@ -223,7 +223,7 @@ class Paintbrush {
       this.updateParticle(particle);
       this.drawParticle(particle);
     }
-    // FIXME: this.removeDeadParticles();
+    this.removeDeadParticles();
   }
 
   /**
@@ -246,6 +246,7 @@ class Paintbrush {
       }
 
       particle.size += this.settings.growth;
+      particle.size = Math.min(particle.size, this.settings.MAX_SIZE);
       particle.age += 1;
 
       this.senesceInvalidParticle(particle);
@@ -260,7 +261,7 @@ class Paintbrush {
   bounceParticle(particle) {
     const gridHorizontalBound = this.grid.width / 2;
     const gridVerticalBound = this.grid.height / 2;
-    const offset = particle.size / 2
+    const offset = particle.size / 2;
     const efficieny = -0.9;
     if (particle.position.x > gridHorizontalBound) {
       particle.position.x = gridHorizontalBound;
@@ -301,7 +302,6 @@ class Paintbrush {
   senesceInvalidParticle(particle) {
     const shouldParticleDie =
       particle.size <= 0 ||
-      Math.max(this.grid.width, this.grid.height) < particle.size ||
       Math.abs(particle.position.x) > this.grid.width ||
       Math.abs(particle.position.y) > this.grid.height;
 
@@ -318,7 +318,13 @@ class Paintbrush {
     if (!this.settings.useBrushColor) {
       this.applyParticleColorToGrid(particle);
     }
-    this.grid.drawShape(this.settings.shape, particle.position.x, particle.position.y, particle.size, !this.settings.outline)
+    this.grid.drawShape(
+      this.settings.shape,
+      particle.position.x,
+      particle.position.y,
+      particle.size,
+      !this.settings.outline
+    );
     this.drawParticleMovementInterpolation(particle);
     if (this.shouldReflectionBeDrawn()) {
       this.drawParticleReflections(particle);
@@ -341,13 +347,17 @@ class Paintbrush {
    * @param {Particle} particle
    */
   drawParticleMovementInterpolation(particle) {
-    if (this.settings.interpolateParticles && !this.settings.outline && particle.hasMoved()) {
+    if (
+      this.settings.interpolateParticles &&
+      !this.settings.outline &&
+      particle.hasMoved()
+    ) {
       this.grid.drawLine(
         particle.prevPosition.x,
         particle.prevPosition.y,
         particle.position.x,
         particle.position.y,
-        particle.size
+        particle.size + 1,
       );
     }
   }
@@ -407,15 +417,15 @@ class Paintbrush {
    * Removes particles whose ages are greater than the paintbrush lifespan.
    */
   removeDeadParticles() {
-    let i = 0;
     if (this.particles.length > 0) {
-      const shouldIncrement =
-        i < this.particles.length && //i < 10 &&
-        this.particles[i].age >= this.settings.lifespan;
-      while (shouldIncrement) {
-        i += 1;
+      let amount = 0;
+      for (let particle of this.particles) {
+        if (particle.age < this.settings.lifespan) {
+          break;
+        }
+        amount += 1;
       }
-      this.particles.splice(0, i);
+      this.particles.splice(0, amount);
     }
   }
 

@@ -15,14 +15,13 @@ class PaintingModel {
     this.brush = new Paintbrush(this.grid);
 
     this.debugView = new DebugView();
-    this.debugSampleRate = 5;
+    this.debugSampleRate = 10;
 
     this.frameTimer = new FrameTimer(this.debugSampleRate);
     this.lastUpdate = 0;
     this.updateTimer = new FrameTimer(this.debugSampleRate);
     this.targetUPS = 30;
     this.targetDelta = 1000 / (this.targetUPS);
-    this.averageDelta = 0;
     this.updates = 0;
 
     this.settings = {
@@ -73,8 +72,8 @@ class PaintingModel {
 
   trimPaintbrushForPerformance() {
     if (this.settings.dynamicallyRemoveParticles) {
-      const diff = this.updateTimer.currentDelta - this.targetDelta;
-      if (diff > 10) {
+      const diff = this.updateTimer.averageDelta() - this.targetDelta;
+      if (diff > 15) {
         const amount = Math.floor(diff * 10 + 20);
         console.log(`Removing ${amount} particles impacting performance`);
         this.brush.particles.splice(0, amount);
@@ -93,10 +92,11 @@ class PaintingModel {
 
   updateDebugDisplay() {
     this.debugView.update({
-      FPS: Math.floor(1000 / this.frameTimer.currentDelta),
-      UPS: Math.floor(1000 / this.updateTimer.currentDelta),
+      'speed': this.brush.settings.speed,
+      FPS: Math.floor(1000 / this.frameTimer.averageDelta()),
+      UPS: Math.floor(1000 / this.updateTimer.averageDelta()),
       'target time': Math.floor(this.targetDelta),
-      "update time": this.updateTimer.currentDelta,
+      "update time": this.updateTimer.averageDelta(),
       updates: this.brush.updates,
       paused: this.brush.settings.pauseMovement,
       dimensions: `${this.grid.width} x ${this.grid.height}`,

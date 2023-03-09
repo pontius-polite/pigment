@@ -24,6 +24,9 @@ class MouseHandler {
     this.element.addEventListener("mouseup", (e) => {
       this.pressed = false;
     });
+    this.element.addEventListener('mouseleave', (e) => {
+      this.pressed = false;
+    })
   }
 
   updatePreviousPosition() {

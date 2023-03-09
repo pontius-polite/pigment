@@ -32,7 +32,7 @@ class Particle {
   }
 
   hasMoved() {
-    return this.position.equals(this.prevPosition);
+    return !this.position.equals(this.prevPosition);
   }
 }
 

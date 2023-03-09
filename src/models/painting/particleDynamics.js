@@ -8,7 +8,7 @@ import { constrainValueToRange } from "../../utils/range";
 const particleDynamics = {
   none: (p, speed) => {},
   creep: (p, speed) => {
-    const s = speed;
+    const s = speed * 4;
     p.velocity.x = randomNum(-1 * s, s);
     p.velocity.y = randomNum(-1 * s, s);
     p.applyVelocity();
@@ -20,7 +20,7 @@ const particleDynamics = {
     p.applyVelocity();
   },
   crystal: (p, speed) => {
-    const s = speed * 1;
+    const s = speed * 2;
     if (p.timer === 0) {
       let coin = randomInt(0, 1);
       if (coin) {
@@ -53,7 +53,7 @@ const particleDynamics = {
     const s = speed * 5;
     p.velocity.y *= 0.95;
     if (Math.abs(p.velocity.y < 0.05)) {
-      p.velocity.y = randomInt(1, s);
+      p.velocity.y = randomNum(1, s);
     }
     p.applyVelocity();
   },
@@ -76,16 +76,53 @@ const particleDynamics = {
     p.applyVelocity();
   },
   tree: (p, speed) => {
-    const s = speed;
-    if (p.timer === 0) {
-      const theta = randomNum(0, Math.PI * 2);
-      p.velocity.x = s * Math.cos(theta);
-      p.velocity.y = s * Math.sin(theta);
-      p.timer = randomInt(20, 30);
-    }
-    p.applyVelocity();
-    p.timer -= 1;
-  }
+    // const s = speed;
+    // if (p.age <= 1) {
+    //   p.velocity.y = s * -1;
+    //   p.timer = 10;
+    // }
+    // if (p.timer === 0) {
+    //   // const theta = 0.5
+    //   // const phi = Math.PI - theta - Math.atan(p.velocity.x / p.velocity.y);
+    //   // const v = p.velocity.distanceFromOrigin();
+    //   // const coin = randomInt(0, 1);
+    //   // if (coin) {
+    //   //   p.velocity.x =  v * Math.sin(phi);
+    //   //   p.velocity.y =  v * Math.cos(phi);
+    //   // } else {
+    //   //   p.velocity.x =  v * Math.cos(phi);
+    //   //   p.velocity.y = -1 *v * Math.sin(phi);
+    //   // }
+    //   const coin = randomInt(0, 1);
+    //   p.velocity.y += randomInt(-1, 1);
+    //   p.velocity.x += randomInt(-1, 1);
+    //   p.timer = 10;
+    // }
+    // p.timer -= 1;
+    // p.applyVelocity();
+  },
+  // flame: (p, speed) => {
+  //   const s = speed * 3;
+  //   if (p.age <= 0) {
+  //     p.velocity.x = randomNum(s * -1, s);
+  //     p.velocity.y = randomNum(s * -1, 0);
+  //   }
+
+  //   p.velocity.x *= 0.9;
+
+  //   p.velocity.y *= 0.95;
+  //   p.velocity.y = Math.min(p.velocity.y, speed * -1);
+
+  //   // if (p.velocity.x > 0) {
+  //   //   p.velocity.x -= randomNum(-1, s);
+  //   // }
+  //   // if (p.velocity.x < 0) {
+  //   //   p.velocity.x += randomNum(-1, s);
+  //   // }
+  //   // p.velocity.x += randomNum(-1, 1);
+    
+  //   p.applyVelocity();
+  // }
 };
 
 export default particleDynamics;

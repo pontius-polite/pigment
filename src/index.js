@@ -8,6 +8,7 @@ console.log('Creating painting...');
 const paintingModel = new PaintingModel(canvasElement, backgroundElement);
 console.log('Creating menu...');
 const menuHandler = new MenuHandler(paintingModel);
+console.log('Settings: ', menuHandler.getSettingsJSON());
 
 window.onresize = function() {
   paintingModel.resize()
