@@ -4,6 +4,7 @@ import Paintbrush from "./Paintbrush";
 import Color from "../color/Color";
 import FrameTimer from "../../timing/FrameTimer";
 import DebugView from "../debug/DebugView";
+import ColorGenerator from "../color/ColorGenerator";
 
 /**
  * Abstraction of the user's drawing. Handles state, updates, and canvas drawing.
@@ -15,17 +16,17 @@ class PaintingModel {
     this.brush = new Paintbrush(this.grid);
 
     this.debugView = new DebugView();
-    this.debugSampleRate = 10;
+    this.debugSampleRate = 2;
 
-    this.frameTimer = new FrameTimer(this.debugSampleRate);
+    this.frameTimer = new FrameTimer(10);
     this.lastUpdate = 0;
-    this.updateTimer = new FrameTimer(this.debugSampleRate);
+    this.updateTimer = new FrameTimer(10);
     this.targetUPS = 30;
     this.targetDelta = 1000 / (this.targetUPS);
     this.updates = 0;
 
     this.settings = {
-      backgroundColor: new Color(251, 33, 8),
+      backgroundColor: "#100e1b",
       dynamicallyRemoveParticles: false,
     }
 
@@ -38,9 +39,9 @@ class PaintingModel {
 
   init() {
     this.resize();
-    this.backgroundElement.style.backgroundColor =
-      this.settings.backgroundColor.toString();
     this.updateAndRender();
+    console.log(this.brush.brushColorGenerator.serialize());
+    console.log(ColorGenerator.deserialize(this.brush.brushColorGenerator.serialize()))
   }
 
   /** The main update loop.  */
@@ -55,9 +56,11 @@ class PaintingModel {
       this.lastUpdate = Date.now();
       this.updateTimer.update();
 
+      this.updateBackgroundColor();
       this.trimPaintbrushForPerformance();
       this.brush.updateAndDraw();
       this.grid.updateMousePosition();
+
       if (this.updates % this.debugSampleRate === 0) {
         this.updateDebugDisplay();
       }
@@ -82,17 +85,15 @@ class PaintingModel {
   }
 
   /**
-   * Updates the background color according to the background color generator.
+   * Updates the color of the background element.
    */
   updateBackgroundColor() {
-    if (this.dynamicBackroundColor) {
-      this.settings.backgroundColor = this.backgroundColorGen.newColor();
-    }
+    this.backgroundElement.style.backgroundColor =
+      this.settings.backgroundColor;
   }
 
   updateDebugDisplay() {
     this.debugView.update({
-      'speed': this.brush.settings.speed,
       FPS: Math.floor(1000 / this.frameTimer.averageDelta()),
       UPS: Math.floor(1000 / this.updateTimer.averageDelta()),
       'target time': Math.floor(this.targetDelta),
@@ -103,8 +104,7 @@ class PaintingModel {
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
       particles: this.brush.particles.length,
-      "particle color": this.brush.settings.brushColor.toString(),
-      "background color": this.settings.backgroundColor.toString(),
+      "brush color": this.brush.settings.brushColor.toString(),
     });
   }
 

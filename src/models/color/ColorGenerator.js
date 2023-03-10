@@ -14,7 +14,6 @@ class ColorGenerator {
   constructor(initialColor) {
     this.color = initialColor ? initialColor : new Color();
     this.speed = 1;
-    this.style = 'static';
     this.interval = 1;
 
     this.cycleDirection = {
@@ -28,7 +27,7 @@ class ColorGenerator {
       colors: [this.color]
     };
 
-    this.tempColor = this.color;
+    this.tempColor = {...this.color};
     
     this.updates = 0;
   }
@@ -88,13 +87,16 @@ class ColorGenerator {
   };
 
   /**
-   * Returns a new stringified hsl or hsla color.
+   * Returns a new  hsl or hsla color.
    * @returns {string}
    */
   newColor() {
-    const result = this.color;
     this.update();
-    return result;
+    if (this.updates % this.interval !== 0) {
+      return this.tempColor;
+    }
+    this.tempColor = {...this.color};
+    return this.color;
   }
 
   /** Applies color dynamic and increments updates. */
@@ -112,6 +114,26 @@ class ColorGenerator {
 
   applyPreset(preset) {
     presets[preset]();
+  }
+
+  serialize() {
+    return JSON.stringify({
+      color: this.color,
+      speed: this.speed,
+      interval: this.interval,
+      path: this.path,
+    })
+  }
+
+  static deserialize(JSONstring) {
+    const props = JSON.parse(JSONstring);
+    const initColor = new Color(props.color.hue, props.color.saturation, props.color.lightness);
+    const generator = new ColorGenerator(initColor);
+    generator.speed = props.speed;
+    generator.interval = props.interval;
+    generator.path = props.path;
+    generator.tempColor = {...initColor};
+    return generator;
   }
 }
 

@@ -19,7 +19,9 @@ class MouseHandler {
       this.position.y = e.offsetY;
     });
     this.element.addEventListener("mousedown", (e) => {
-      this.pressed = true;
+      if (e.button === 0) {
+        this.pressed = true;
+      }
     });
     this.element.addEventListener("mouseup", (e) => {
       this.pressed = false;

@@ -148,7 +148,7 @@ class CanvasGrid {
     const realYS = Math.floor(startY + this.offset.y);
     const realXE = Math.floor(endX + this.offset.x);
     const realYE = Math.floor(endY + this.offset.y);
-    this.context.lineWidth = Math.floor(thickness);
+    this.context.lineWidth = Math.floor(thickness + 1);
     this.context.lineCap = "round";
     this.context.beginPath();
     this.context.moveTo(realXS, realYS);

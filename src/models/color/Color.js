@@ -16,9 +16,10 @@ class Color {
    * @returns {boolean}
    */
   equals(color) {
-    const isSameColor = (this.hue === color.hue &&
-        this.saturation === color.saturation &&
-        this.lightness === color.lightness);
+    const isSameColor =
+      this.hue === color.hue &&
+      this.saturation === color.saturation &&
+      this.lightness === color.lightness;
     return isSameColor;
   }
 
@@ -89,6 +90,9 @@ class Color {
     const intLit = Math.floor(this.lightness);
     return `hsl(${intHue}, ${intSat}%, ${intLit}%)`;
   }
+
+  
+  
 }
 
 export default Color;

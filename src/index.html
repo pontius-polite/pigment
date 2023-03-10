@@ -31,13 +31,13 @@
         <div class="menu-panel" id="paintbrush-panel">
           <div class="menu-item-container">
             <label for="brush-preset">preset:</label>
-            <select>
-              <option value="default" name="brush-preset">default</option>
+            <select name="brush-preset">
+              <option value="brownian fungus">brownian fungus</option>
             </select>
           </div>
           <div class="menu-item-container">
             <label for="brush-speed">speed:</label>
-            <input type="number" class="input-setting" name="brush-speed" min="0" max="10" step="0.2" />
+            <input type="number" class="input-setting" name="brush-speed" min="0" max="10" step="0.5" />
           </div>
           <div class="menu-item-container">
             <label for="brush-size">size:</label>
@@ -48,25 +48,119 @@
             <input type="number" class="input-setting" name="brush-growth" min="-5" max="5" step="1" />
           </div>
           <div class="menu-item-container">
-            <label for="brush-outline">outline pigments:</label>
+            <label for="brush-outline">outline particles:</label>
             <input type="checkbox" class="input-setting" name="brush-outline" />
           </div>
           <div class="menu-item-container">
-            <label for="brush-bounce">bounce pigments:</label>
+            <label for="brush-bounce">bounce particles:</label>
             <input type="checkbox" class="input-setting" name="brush-bounce" />
           </div>
           <div class="menu-item-container">
             <label for="brush-gravity-mouse">gravity mouse:</label>
             <input type="checkbox" class="input-setting" name="brush-gravity-mouse" />
           </div>
+        </div>
+        <div class="menu-panel" id="color-panel">
+          <div class="menu-panel-divider">
+            <span class="menu-panel-divider-heading">Brush</span>
+            <div class="menu-item-container">
+              <label for="color-brush-dynamic">dynamic color:</label>
+              <input type="checkbox" class="input-setting" name="color-brush-dynamic" />
+            </div>
+            <div class="menu-item-container color-brush-dynamic-false">
+              <label for="color-brush">brush color:</label>
+              <input type="color" class="input-setting" name="color-brush"/>
+            </div>
+            <div class="menu-item-container color-brush-dynamic-true">
+              <label for="color-brush-palette">palette:</label>
+              <select name="color-brush-palette">
+                <option value="default">default</option>
+              </select>
+            </div>
+            <div class="menu-item-container color-brush-dynamic-true">
+              <label for="color-brush-dynamic-speed">speed:</label>
+              <input type="number" class="input-setting" name="color-brush-dynamic-speed" min="0.1" max="20" step="0.5" />
+            </div>
+            <div class="menu-item-container color-brush-dynamic-true">
+              <label for="color-brush-dynamic-interval">interval:</label>
+              <input type="number" class="input-setting" name="color-brush-dynamic-interval" min="1" max="200" step="10" />
+            </div>
+            <div class="menu-item-container color-brush-dynamic-true">
+              <label for="color-brush-apply">particles update with brush color:</label>
+              <input type="checkbox" class="input-setting" name="color-brush-apply" />
+            </div>
+          </div>
+          <div class="menu-panel-divider">
+            <span class="menu-panel-divider-heading">Particles</span>
+            <div class="menu-item-container">
+              <label for="color-particle-dynamic">dynamic color:</label>
+              <input type="checkbox" class="input-setting" name="color-particle-dynamic" />
+            </div>
+            <div class="menu-item-container color-particle-dynamic-true">
+              <label for="color-particle-palette">palette:</label>
+              <select name="color-particle-palette">
+                <option value="default">default</option>
+              </select>
+            </div>
+            <div class="menu-item-container color-particle-dynamic-true">
+              <label for="color-particle-dynamic-speed">speed:</label>
+              <input type="number" class="input-setting" name="color-particle-dynamic-speed" min="0.1" max="20" step="0.5" />
+            </div>
+            <div class="menu-item-container color-particle-dynamic-true">
+              <label for="color-particle-dynamic-interval">interval:</label>
+              <input type="number" class="input-setting" name="color-particle-dynamic-interval" min="1" max="200" step="10" />
+            </div>
+          </div>
+          <div class="menu-panel-divider">
+            <span class="menu-panel-divider-heading">Background</span>
+            <div class="menu-item-container">
+              <label for="color-brush">color:</label>
+              <input type="color" class="input-setting" name="color-background" />
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="menu-panel" id="reflections-panel">
           <div class="menu-item-container">
-            <button class="randomize-button" id="randomize paintbrush">Randomize!</button>
+            <label for="reflection-type">Type:</label>
+            <select name="reflection-type">
+              <option value="none">none</option>
+              <option value="polar">polar</option>
+              <option value="horizontal">x-axis</option>
+              <option value="vertical">y-axis</option>
+            </select>
+          </div>
+          <div class="menu-item-container">
+            <label for="reflection-amount">amount:</label>
+            <input type="number" class="input-setting" name="reflection-amount" min="1" max="8" step="1" />
+          </div>
+        </div>
+        <div class="menu-panel" id="performance-panel">
+          <div class="menu-item-container">
+            <label for="performance-particle-quality">particle quality:</label>
+            <select name="performance-particle-quality">
+              <option value="circle">high</option>
+              <option value="square">low</option>
+            </select>
+          </div>
+          <div class="menu-item-container">
+            <label for="perfomance-particle-lifespan">particle lifespan:</label>
+            <input type="number" class="input-setting" name="performance-particle-lifespan" min="10" max="500" step="10" />
+          </div>
+          <div class="menu-item-container">
+            <label for="performance-interpolate-mouse">interpolate mouse movement:</label>
+            <input type="checkbox" class="input-setting" name="performance-interpolate-mouse"/>
+          </div>
+          <div class="menu-item-container">
+            <label for="performance-interpolate-particles">interpolate particle movement:</label>
+            <input type="checkbox" class="input-setting" name="performance-interpolate-particles"/>
+          </div>
+          <div class="menu-item-container">
+            <label for="performance-dynamic-particle-removal">remove lagging particles:</label>
+            <input type="checkbox" class="input-setting" name="performance-dynamic-particle-removal"/>
           </div>
           
         </div>
-        <div class="menu-panel" id="color-panel">2</div>
-        <div class="menu-panel" id="reflections-panel">3</div>
-        <div class="menu-panel" id="performance-panel">4</div>
         <div class="menu-panel" id="hotkeys-panel">
           <div class="menu-item-container">Space bar : pause painting</div>
           <div class="menu-item-container">C : clear painting</div>

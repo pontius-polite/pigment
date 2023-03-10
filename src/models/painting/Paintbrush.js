@@ -19,7 +19,7 @@ class Paintbrush {
     this.settings = {
       pauseMovement: false,
 
-      size: 6,
+      size: 5,
       MAX_SIZE: 200,
       growth: 0,
       shape: "circle",
@@ -48,7 +48,7 @@ class Paintbrush {
 
       reflection: {
         type: "none",
-        amount: 8,
+        amount: 3,
       },
 
       lifespan: 240,
@@ -63,7 +63,7 @@ class Paintbrush {
 
   /** Creates a new ColorGenerator with parameters determined by this.settings.colorGen. */
   createBrushColorGenerator() {
-    const colorGen = new ColorGenerator(this.settings.brushColor.copy());
+    const colorGen = new ColorGenerator({...this.settings.brushColor});
     colorGen.style = this.settings.brushColorGen.style;
     colorGen.speed = this.settings.brushColorGen.speed;
     colorGen.interval = this.settings.brushColorGen.interval;
@@ -90,6 +90,7 @@ class Paintbrush {
   updateBrushColor() {
     if (this.settings.dynamicBrushColor && this.grid.mousePressed()) {
       this.settings.brushColor = this.brushColorGenerator.newColor();
+      console.log(this.settings.brushColor)
       this.grid.setColor(this.settings.brushColor);
     }
   }
@@ -125,7 +126,7 @@ class Paintbrush {
    */
   addParticle(point) {
     const newParticle = new Particle(point.x, point.y);
-    newParticle.color = this.settings.brushColor.copy();
+    newParticle.color = {...this.settings.brushColor};
     newParticle.size = this.settings.size;
     if (this.settings.dynamicParticleColor) {
       newParticle.colorGenerator = this.createParticleColorGenerator();
@@ -136,7 +137,7 @@ class Paintbrush {
 
   /** Creates a new ColorGenerator with parameters determined by this.settings.colorGen. */
   createParticleColorGenerator() {
-    const colorGen = new ColorGenerator(this.settings.brushColor.copy());
+    const colorGen = new ColorGenerator({...this.settings.brushColor});
     colorGen.style = this.settings.particleColorGen.style;
     colorGen.speed = this.settings.particleColorGen.speed;
     colorGen.interval = this.settings.particleColorGen.interval;
