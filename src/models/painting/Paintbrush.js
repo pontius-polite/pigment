@@ -4,8 +4,6 @@ import Particle from "./Particle";
 
 import getReflectionPoints from "./getReflectionPoints";
 
-import functionTimer from "../../utils/functionTimer";
-
 /** Handles particle behavior and drawing. */
 class Paintbrush {
   /**
@@ -19,9 +17,9 @@ class Paintbrush {
     this.settings = {
       pauseMovement: false,
 
-      size: 5,
+      size: 4,
       MAX_SIZE: 200,
-      growth: 0,
+      growth: -0.02,
       shape: "circle",
       outline: false,
 
@@ -31,19 +29,8 @@ class Paintbrush {
       followMouse: false,
 
       brushColor: new Color(194, 100, 50),
-      brushColorGen: {
-        style: "cycleHue",
-        speed: 1,
-        interval: 1,
-      },
       dynamicBrushColor: true,
       useBrushColor: false,
-
-      particleColorGen: {
-        style: "cycleHue",
-        speed: 2,
-        interval: 1,
-      },
       dynamicParticleColor: false,
 
       reflection: {
@@ -57,16 +44,33 @@ class Paintbrush {
       interpolateParticles: true,
     };
 
-    this.brushColorGenerator = this.createBrushColorGenerator();
+    this.brushColorGenerator = this.initBrushColorGenerator();
+    this.particleColorGenerator = this.initParticleColorGenerator();
     this.updates = 0;
   }
 
-  /** Creates a new ColorGenerator with parameters determined by this.settings.colorGen. */
-  createBrushColorGenerator() {
-    const colorGen = new ColorGenerator({...this.settings.brushColor});
-    colorGen.style = this.settings.brushColorGen.style;
-    colorGen.speed = this.settings.brushColorGen.speed;
-    colorGen.interval = this.settings.brushColorGen.interval;
+  /** 
+   * Creates a new ColorGenerator with initial values. 
+   * @returns {ColorGenerator}
+   */
+  initBrushColorGenerator() {
+    const colorGen = new ColorGenerator(this.settings.brushColor.copy());
+    colorGen.style = 'cycleHue';
+    colorGen.speed = 1;
+    colorGen.interval = 1;
+    
+    //colorGen.style = 'random';
+    console.log('ColorGen: ', colorGen.serialize());
+    return colorGen;
+  }
+
+  /** 
+   * Creates a new ColorGenerator with initial values. 
+   * @returns {ColorGenerator}
+   */
+  initParticleColorGenerator() {
+    const colorGen = this.brushColorGenerator.copy();
+    colorGen.speed = 2;
     return colorGen;
   }
 
@@ -90,7 +94,6 @@ class Paintbrush {
   updateBrushColor() {
     if (this.settings.dynamicBrushColor && this.grid.mousePressed()) {
       this.settings.brushColor = this.brushColorGenerator.newColor();
-      console.log(this.settings.brushColor)
       this.grid.setColor(this.settings.brushColor);
     }
   }
@@ -126,21 +129,20 @@ class Paintbrush {
    */
   addParticle(point) {
     const newParticle = new Particle(point.x, point.y);
-    newParticle.color = {...this.settings.brushColor};
+    newParticle.color = this.settings.brushColor.copy();
     newParticle.size = this.settings.size;
     if (this.settings.dynamicParticleColor) {
       newParticle.colorGenerator = this.createParticleColorGenerator();
-      newParticle.colorGenerator.style = "cycleHue";
     }
     this.particles.push(newParticle);
   }
 
-  /** Creates a new ColorGenerator with parameters determined by this.settings.colorGen. */
+  /** Creates a new ColorGenerator copied from the particleColorGenerator, but with 
+   * initial color of the brushColorGenerator.
+   */
   createParticleColorGenerator() {
-    const colorGen = new ColorGenerator({...this.settings.brushColor});
-    colorGen.style = this.settings.particleColorGen.style;
-    colorGen.speed = this.settings.particleColorGen.speed;
-    colorGen.interval = this.settings.particleColorGen.interval;
+    const colorGen = this.particleColorGenerator.copy();
+    colorGen.color = this.brushColorGenerator.color.copy();
     return colorGen;
   }
 
@@ -149,7 +151,10 @@ class Paintbrush {
    */
   addParticleMouseInterpolations() {
     const distance = this.grid.mouseMoveDistance();
-    const numInterpolations = Math.floor(distance / this.settings.size) + 1;
+    let numInterpolations = Math.floor(distance / this.settings.size) + 1;
+    if (this.settings.size < 3) {
+      numInterpolations = Math.floor(numInterpolations / 2);
+    }
     const points = this.grid
       .mousePosition()
       .interpolatePointsBetween(
@@ -287,11 +292,11 @@ class Paintbrush {
    * @param {Particle} particle
    */
   driftToMouse(particle) {
-    const driftSpeed = this.settings.speed * 0.0005;
-    const xDif = this.grid.mousePosition().x - particle.position.x;
-    const yDif = this.grid.mousePosition().y - particle.position.y;
-    particle.velocity.x += driftSpeed * xDif;
-    particle.velocity.y += driftSpeed * yDif;
+    const driftSpeed = this.settings.speed * 0.001;
+    const xDif = (this.grid.mousePosition().x - particle.position.x) * 4;
+    const yDif = (this.grid.mousePosition().y - particle.position.y) * 4;
+    particle.position.x += driftSpeed * xDif;
+    particle.position.y += driftSpeed * yDif;
   }
 
   /**

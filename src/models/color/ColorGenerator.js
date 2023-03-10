@@ -1,4 +1,4 @@
-import Color from './Color';
+import Color from "./Color";
 import { randomInt } from "../../utils/random";
 
 /**
@@ -12,27 +12,28 @@ class ColorGenerator {
    * @param {Color=} initialColor
    */
   constructor(initialColor) {
-    this.color = initialColor ? initialColor : new Color();
+    this.color = initialColor !== undefined ? initialColor : new Color();
     this.speed = 1;
     this.interval = 1;
+    this.style = "cycleHue";
 
     this.cycleDirection = {
       hue: 1,
-      saturation: 1, 
-      lightness: 1
+      saturation: 1,
+      lightness: 1,
     };
 
     this.path = {
       current: 0,
-      colors: [this.color]
+      colors: [this.color],
     };
 
-    this.tempColor = {...this.color};
-    
+    this.tempColor = this.color.copy();
+
     this.updates = 0;
   }
 
-  /** 
+  /**
    * Dictionary of color change functions. Calling applyDynamics[style] will adjust the
    * color generator's color value.
    */
@@ -68,21 +69,18 @@ class ColorGenerator {
     },
     path: () => {
       if (this.path.colors.length > 1) {
-        const targetIndex = (this.path.current + 1) % this.path.colors.length; 
+        const targetIndex = (this.path.current + 1) % this.path.colors.length;
         const targetColor = this.path.colors[targetIndex];
         this.color.moveTo(targetColor, this.speed / 3);
         if (this.color.equals(targetColor)) {
           this.path.current = (this.path.current + 1) % this.path.colors.length;
         }
       }
-    }, 
+    },
     random: () => {
-      const change = Math.floor(1 / this.speed) + 1;
-      if (this.updates % change === 0) {
-        this.color.hue = randomInt(0, 359);
-        this.color.lightness = 50;
-        this.color.saturation = randomInt(0, 100);
-      }
+      this.color.hue = randomInt(0, 359);
+      this.color.lightness = 50;
+      this.color.saturation = randomInt(75, 100);
     },
   };
 
@@ -95,7 +93,7 @@ class ColorGenerator {
     if (this.updates % this.interval !== 0) {
       return this.tempColor;
     }
-    this.tempColor = {...this.color};
+    this.tempColor = this.color.copy();
     return this.color;
   }
 
@@ -105,15 +103,17 @@ class ColorGenerator {
     this.updates += 1;
   }
 
-  presets = {
-    rainbow: () => {
-      this.color = new Color(194, 100, 50),
-      this.style = 'cycleHue';
-    }
-  }
-
-  applyPreset(preset) {
-    presets[preset]();
+  /**
+   * Returns a hard copy of this color generator.
+   * @returns {ColorGenerator}
+   */
+  copy() {
+    const result = new ColorGenerator(this.color.copy());
+    result.speed = this.speed;
+    result.interval = this.interval;
+    result.style = this.style;
+    result.path = this.path;
+    return result;
   }
 
   serialize() {
@@ -122,17 +122,23 @@ class ColorGenerator {
       speed: this.speed,
       interval: this.interval,
       path: this.path,
-    })
+      style: this.style,
+    });
   }
 
-  static deserialize(JSONstring) {
-    const props = JSON.parse(JSONstring);
-    const initColor = new Color(props.color.hue, props.color.saturation, props.color.lightness);
+  static deserialize(props) {
+    const initColor = new Color(
+      props.color.hue,
+      props.color.saturation,
+      props.color.lightness
+    );
     const generator = new ColorGenerator(initColor);
     generator.speed = props.speed;
     generator.interval = props.interval;
     generator.path = props.path;
-    generator.tempColor = {...initColor};
+    generator.tempColor = { ...initColor };
+    generator.style = props.style;
+    console.log(generator);
     return generator;
   }
 }

@@ -26,7 +26,7 @@ class PaintingModel {
     this.updates = 0;
 
     this.settings = {
-      backgroundColor: "#100e1b",
+      backgroundColor: new Color(249, 32, 8),
       dynamicallyRemoveParticles: false,
     }
 
@@ -40,8 +40,6 @@ class PaintingModel {
   init() {
     this.resize();
     this.updateAndRender();
-    console.log(this.brush.brushColorGenerator.serialize());
-    console.log(ColorGenerator.deserialize(this.brush.brushColorGenerator.serialize()))
   }
 
   /** The main update loop.  */
@@ -89,7 +87,7 @@ class PaintingModel {
    */
   updateBackgroundColor() {
     this.backgroundElement.style.backgroundColor =
-      this.settings.backgroundColor;
+      this.settings.backgroundColor.toHSLString();
   }
 
   updateDebugDisplay() {
@@ -104,7 +102,7 @@ class PaintingModel {
       "mouse pos": this.grid.mousePosition(),
       "mouse down": this.grid.mousePressed(),
       particles: this.brush.particles.length,
-      "brush color": this.brush.settings.brushColor.toString(),
+      "brush color": this.brush.settings.brushColor.toHSLString(),
     });
   }
 

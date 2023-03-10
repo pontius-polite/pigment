@@ -1,0 +1,5 @@
+[
+  {"name": "rainbow", "data": {"color":{"hue":194,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":194,"saturation":100,"lightness":50}]},"style":"cycleHue"}},
+  {"name": "chaos", "data": {"color":{"hue":194,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":194,"saturation":100,"lightness":50}]},"style":"random"}}
+
+]

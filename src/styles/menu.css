@@ -29,6 +29,9 @@
   padding: 10px;
   cursor: pointer;
   background-color: var(--menu-background-color);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .menu-button.selected {
@@ -42,6 +45,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   font-size: 14px;
+  min-height: 35px;
 }
 
 .menu-panel-divider {
@@ -84,8 +88,12 @@
   display: none;
 }
 
+.polar-reflection-true {
+  display: none;
+}
+
 input[type=number] {
-  width: 40px;
+  width: 50px;
 }
 
 label {

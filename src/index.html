@@ -36,16 +36,20 @@
             </select>
           </div>
           <div class="menu-item-container">
+            <label for="brush-style">style:</label>
+            <select name="brush-style"></select>
+          </div>
+          <div class="menu-item-container">
             <label for="brush-speed">speed:</label>
             <input type="number" class="input-setting" name="brush-speed" min="0" max="10" step="0.5" />
           </div>
           <div class="menu-item-container">
             <label for="brush-size">size:</label>
-            <input type="number" class="input-setting" name="brush-size" min="0" max="50" step="1" />
+            <input type="number" class="input-setting" name="brush-size" min="1" max="50" step="1" />
           </div>
           <div class="menu-item-container">
             <label for="brush-growth">growth:</label>
-            <input type="number" class="input-setting" name="brush-growth" min="-5" max="5" step="1" />
+            <input type="number" class="input-setting" name="brush-growth" min="-5" max="5" step="0.2" />
           </div>
           <div class="menu-item-container">
             <label for="brush-outline">outline particles:</label>
@@ -73,9 +77,7 @@
             </div>
             <div class="menu-item-container color-brush-dynamic-true">
               <label for="color-brush-palette">palette:</label>
-              <select name="color-brush-palette">
-                <option value="default">default</option>
-              </select>
+              <select name="color-brush-palette"></select>
             </div>
             <div class="menu-item-container color-brush-dynamic-true">
               <label for="color-brush-dynamic-speed">speed:</label>
@@ -86,7 +88,7 @@
               <input type="number" class="input-setting" name="color-brush-dynamic-interval" min="1" max="200" step="10" />
             </div>
             <div class="menu-item-container color-brush-dynamic-true">
-              <label for="color-brush-apply">particles update with brush color:</label>
+              <label for="color-brush-apply">particles use brush color:</label>
               <input type="checkbox" class="input-setting" name="color-brush-apply" />
             </div>
           </div>
@@ -98,9 +100,7 @@
             </div>
             <div class="menu-item-container color-particle-dynamic-true">
               <label for="color-particle-palette">palette:</label>
-              <select name="color-particle-palette">
-                <option value="default">default</option>
-              </select>
+              <select name="color-particle-palette"></select>
             </div>
             <div class="menu-item-container color-particle-dynamic-true">
               <label for="color-particle-dynamic-speed">speed:</label>
@@ -122,7 +122,7 @@
         </div>
         <div class="menu-panel" id="reflections-panel">
           <div class="menu-item-container">
-            <label for="reflection-type">Type:</label>
+            <label for="reflection-type">type:</label>
             <select name="reflection-type">
               <option value="none">none</option>
               <option value="polar">polar</option>
@@ -130,7 +130,7 @@
               <option value="vertical">y-axis</option>
             </select>
           </div>
-          <div class="menu-item-container">
+          <div class="menu-item-container polar-reflection-true">
             <label for="reflection-amount">amount:</label>
             <input type="number" class="input-setting" name="reflection-amount" min="1" max="8" step="1" />
           </div>

@@ -75,7 +75,7 @@ class Color {
     this.lightness = Math.min(this.lightness, 100);
     this.lightness = Math.max(this.lightness, 0);
   }
-
+  
   /**
    * Returns a hard copy of this color.
    * @returns {Color}
@@ -84,7 +84,7 @@ class Color {
     return new Color(this.hue, this.saturation, this.lightness);
   }
 
-  toString() {
+  toHSLString() {
     const intHue = Math.floor(this.hue);
     const intSat = Math.floor(this.saturation);
     const intLit = Math.floor(this.lightness);

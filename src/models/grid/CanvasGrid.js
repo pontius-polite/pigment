@@ -30,8 +30,8 @@ class CanvasGrid {
    * @param {Color} color
    */
   setColor(color) {
-    this.context.fillStyle = color.toString();
-    this.context.strokeStyle = color.toString();
+    this.context.fillStyle = color.toHSLString();
+    this.context.strokeStyle = color.toHSLString();
   }
 
   /**
@@ -39,7 +39,7 @@ class CanvasGrid {
    * @param {Color} color
    */
   setFillColor(color) {
-    this.context.fillStyle = color.toString();
+    this.context.fillStyle = color.toHSLString();
   }
 
   /**
@@ -47,7 +47,7 @@ class CanvasGrid {
    * @param {Color} color
    */
   setStrokeColor(color) {
-    this.context.strokeStyle = color.toString();
+    this.context.strokeStyle = color.toHSLString();
   }
 
   dimensions() {
@@ -148,7 +148,10 @@ class CanvasGrid {
     const realYS = Math.floor(startY + this.offset.y);
     const realXE = Math.floor(endX + this.offset.x);
     const realYE = Math.floor(endY + this.offset.y);
-    this.context.lineWidth = Math.floor(thickness + 1);
+    if (thickness > 1) {
+      thickness += 1;
+    }
+    this.context.lineWidth = Math.floor(thickness);
     this.context.lineCap = "round";
     this.context.beginPath();
     this.context.moveTo(realXS, realYS);

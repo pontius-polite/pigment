@@ -6,14 +6,14 @@ import { constrainValueToRange } from "../../utils/range";
  * Calling a movement function on a particle will modify its properties.
  */
 const particleDynamics = {
-  none: (p, speed) => {},
+  
   creep: (p, speed) => {
     const s = speed * 4;
     p.velocity.x = randomNum(-1 * s, s);
     p.velocity.y = randomNum(-1 * s, s);
     p.applyVelocity();
   },
-  noodle: (p, speed) => {
+  spaghetti: (p, speed) => {
     const s = speed / 4;
     p.velocity.x += randomNum(-1 * s, s);
     p.velocity.y += randomNum(-1 * s, s);
@@ -44,13 +44,14 @@ const particleDynamics = {
     if (p.timer === 0) {
       p.velocity.x = randomInt(-1, 1) * s;
       p.velocity.y = randomInt(-1, 1) * s;
-      p.timer = randomInt(60, 70);
+      p.timer = randomInt(80, 90);
     }
     p.applyVelocity();
     p.timer -= 1;
   }, 
   drip: (p, speed) => {
     const s = speed * 5;
+    p.velocity.x = 0;
     p.velocity.y *= 0.95;
     if (Math.abs(p.velocity.y < 0.05)) {
       p.velocity.y = randomNum(1, s);
@@ -75,32 +76,44 @@ const particleDynamics = {
       p.position.x * Math.sin(theta) + p.position.y * Math.cos(theta);
     p.applyVelocity();
   },
-  tree: (p, speed) => {
-    // const s = speed;
-    // if (p.age <= 1) {
-    //   p.velocity.y = s * -1;
-    //   p.timer = 10;
-    // }
-    // if (p.timer === 0) {
-    //   // const theta = 0.5
-    //   // const phi = Math.PI - theta - Math.atan(p.velocity.x / p.velocity.y);
-    //   // const v = p.velocity.distanceFromOrigin();
-    //   // const coin = randomInt(0, 1);
-    //   // if (coin) {
-    //   //   p.velocity.x =  v * Math.sin(phi);
-    //   //   p.velocity.y =  v * Math.cos(phi);
-    //   // } else {
-    //   //   p.velocity.x =  v * Math.cos(phi);
-    //   //   p.velocity.y = -1 *v * Math.sin(phi);
-    //   // }
-    //   const coin = randomInt(0, 1);
-    //   p.velocity.y += randomInt(-1, 1);
-    //   p.velocity.x += randomInt(-1, 1);
-    //   p.timer = 10;
-    // }
-    // p.timer -= 1;
-    // p.applyVelocity();
+  firework: (p, speed) => {
+    const s = speed * 20;
+    if (p.age === 0) {
+      p.velocity.x = randomNum(s * -1, s);
+      p.velocity.y = randomNum(s * -1, s);
+    }
+    p.velocity.x *= 0.8;
+    p.velocity.y *= 0.8;
+    p.applyVelocity();
   },
+  still: (p, speed) => {},
+  //TODO:
+  // tree: (p, speed) => {
+  //   const s = speed;
+  //   if (p.age <= 1) {
+  //     p.velocity.y = s * -1;
+  //     p.timer = 10;
+  //   }
+  //   if (p.timer === 0) {
+  //     // const theta = 0.5
+  //     // const phi = Math.PI - theta - Math.atan(p.velocity.x / p.velocity.y);
+  //     // const v = p.velocity.distanceFromOrigin();
+  //     // const coin = randomInt(0, 1);
+  //     // if (coin) {
+  //     //   p.velocity.x =  v * Math.sin(phi);
+  //     //   p.velocity.y =  v * Math.cos(phi);
+  //     // } else {
+  //     //   p.velocity.x =  v * Math.cos(phi);
+  //     //   p.velocity.y = -1 *v * Math.sin(phi);
+  //     // }
+  //     const coin = randomInt(0, 1);
+  //     p.velocity.y += randomInt(-1, 1);
+  //     p.velocity.x += randomInt(-1, 1);
+  //     p.timer = 10;
+  //   }
+  //   p.timer -= 1;
+  //   p.applyVelocity();
+  // },
   // flame: (p, speed) => {
   //   const s = speed * 3;
   //   if (p.age <= 0) {
