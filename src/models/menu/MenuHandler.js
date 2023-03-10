@@ -16,11 +16,6 @@ class MenuHandler {
     this.createMenuTabbing();
     this.addInputEventListeners();
     this.addSelectOptions();
-    // TODO:
-    // create presets JSON of brush
-    // create presets JSON of color palettes
-    // this.loadPresets()
-    //  - Add preset onchanges and options
 
     this.applySettingsToDOM(this.getSettingsFromPainting());
   }
@@ -146,14 +141,13 @@ class MenuHandler {
   addPresetEventListeners() {
     const brushPaletteSelect = document.querySelector("[name=color-brush-palette]");
     brushPaletteSelect.onchange = (event) => {
-      const palette = palettes.find(p => p.name === event.target.value);
-      this.brush.brushColorGenerator = ColorGenerator.deserialize(palette.data);
+      const palette = palettes[event.target.value];
+      this.brush.brushColorGenerator = ColorGenerator.deserialize(palette);
     }
     const particlePaletteSelect = document.querySelector("[name=color-particle-palette]");
     particlePaletteSelect.onchange = (event) => {
-      const palette = palettes.find(p => p.name === event.target.value);
-      console.log(palette);
-      this.brush.particleColorGenerator = ColorGenerator.deserialize(palette.data);
+      const palette = palettes[event.target.value];
+      this.brush.particleColorGenerator = ColorGenerator.deserialize(palette);
     }
   }
 
@@ -172,14 +166,14 @@ class MenuHandler {
 
     const brushPaletteSelect = document.querySelector("[name=color-brush-palette]");
     const particlePaletteSelect = document.querySelector("[name=color-particle-palette]");
-    for (let palette of palettes) {
+    for (let palette of Object.keys(palettes)) {
       const brushOption = document.createElement("option");
-      brushOption.value = palette.name;
-      brushOption.innerHTML = palette.name;
+      brushOption.value = palette;
+      brushOption.innerHTML = palette;
       brushPaletteSelect.appendChild(brushOption);
       const particleOption = document.createElement("option");
-      particleOption.value = palette.name;
-      particleOption.innerHTML = palette.name;
+      particleOption.value = palette;
+      particleOption.innerHTML = palette;
       particlePaletteSelect.appendChild(particleOption);
     }
   }

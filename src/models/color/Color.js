@@ -5,7 +5,7 @@ class Color {
     this.saturation = saturation !== undefined ? saturation : 100;
     this.lightness = lightness !== undefined ? lightness : 50;
 
-    console.assert(this.hue >= 0 && this.hue < 360);
+    console.assert(this.hue >= 0 && this.hue <= 360);
     console.assert(this.saturation >= 0 && this.saturation <= 100);
     console.assert(this.lightness >= 0 && this.lightness <= 100);
   }
@@ -29,10 +29,18 @@ class Color {
    * @param {number} [increment = 1]
    */
   moveTo(targetColor, increment = 1) {
-    if (this.hue < targetColor.hue) {
-      this.hue = Math.min(this.hue + increment, targetColor.hue);
+    if (Math.abs(targetColor.hue - this.hue) < 180) {
+      if (this.hue < targetColor.hue) {
+        this.hue = Math.min(this.hue + increment, targetColor.hue);
+      } else {
+        this.hue = Math.max(this.hue - increment, targetColor.hue);
+      }
     } else {
-      this.hue = Math.max(this.hue - increment, targetColor.hue);
+      if (this.hue < targetColor.hue) {
+        this.hue -= increment;
+      } else {
+        this.hue += increment;
+      }
     }
 
     if (this.saturation < targetColor.saturation) {
@@ -66,8 +74,7 @@ class Color {
    * Adjusts HSL values if they are outside of valid bounds.
    */
   applyHSLBounds() {
-    this.hue = Math.min(this.hue, 359);
-    this.hue = Math.max(this.hue, 0);
+    this.hue = (this.hue + 360) % 360;
 
     this.saturation = Math.min(this.saturation, 100);
     this.saturation = Math.max(this.saturation, 0);
@@ -75,7 +82,7 @@ class Color {
     this.lightness = Math.min(this.lightness, 100);
     this.lightness = Math.max(this.lightness, 0);
   }
-  
+
   /**
    * Returns a hard copy of this color.
    * @returns {Color}
@@ -90,9 +97,6 @@ class Color {
     const intLit = Math.floor(this.lightness);
     return `hsl(${intHue}, ${intSat}%, ${intLit}%)`;
   }
-
-  
-  
 }
 
 export default Color;

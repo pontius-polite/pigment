@@ -54,11 +54,11 @@
   flex-wrap: wrap;
   align-items: center;
   padding: 5px;
+  border-bottom: 2px solid var(--menu-background-color);
 }
 
 .menu-panel-divider-heading {
   width: 80px;
-  text-align: right;
   padding: 5px;
 }
 

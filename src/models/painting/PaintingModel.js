@@ -33,7 +33,7 @@ class PaintingModel {
     this.keys = new KeyHandler({
       " ": () => this.handlePause(),
       d: () => this.debugView.toggle(),
-      c: () => this.clear(),
+      escape: () => this.clear(),
     });
   }
 

@@ -1,7 +1,6 @@
 import ColorGenerator from "../color/ColorGenerator";
 import Color from "../color/Color";
 import Particle from "./Particle";
-
 import getReflectionPoints from "./getReflectionPoints";
 
 /** Handles particle behavior and drawing. */
@@ -16,30 +15,24 @@ class Paintbrush {
 
     this.settings = {
       pauseMovement: false,
-
       size: 4,
       MAX_SIZE: 200,
       growth: -0.02,
       shape: "circle",
       outline: false,
-
       speed: 1,
       movement: "creep",
       bounce: false,
       followMouse: false,
-
-      brushColor: new Color(194, 100, 50),
+      brushColor: new Color(327, 100, 50),
       dynamicBrushColor: true,
       useBrushColor: false,
       dynamicParticleColor: false,
-
       reflection: {
         type: "none",
         amount: 3,
       },
-
       lifespan: 240,
-
       interpolateMouse: true,
       interpolateParticles: true,
     };
@@ -49,23 +42,42 @@ class Paintbrush {
     this.updates = 0;
   }
 
-  /** 
-   * Creates a new ColorGenerator with initial values. 
+  /**
+   * Creates a new ColorGenerator with initial values.
    * @returns {ColorGenerator}
    */
   initBrushColorGenerator() {
     const colorGen = new ColorGenerator(this.settings.brushColor.copy());
-    colorGen.style = 'cycleHue';
-    colorGen.speed = 1;
+    colorGen.style = "cycleHue";
+    colorGen.speed = 3;
     colorGen.interval = 1;
-    
-    //colorGen.style = 'random';
-    console.log('ColorGen: ', colorGen.serialize());
+
+    colorGen.style = "path";
+
+    /**
+ * minimalist
+ * bee sting
+ * mad max
+ * tokyo
+ * 
+ */
+
+    colorGen.path.colors = [
+      new Color(53, 38, 70),
+      new Color(53, 38, 100),
+      // new Color(65, 94, 63),
+      // new Color(239, 32, 67),
+      // new Color(239, 80, 55),
+      //new Color(100, 75, 72),
+      // new Color(24, 21, 28),
+    ];
+    colorGen.color = colorGen.path.colors[0].copy();
+    console.log("ColorGen: ", colorGen.serialize());
     return colorGen;
   }
 
-  /** 
-   * Creates a new ColorGenerator with initial values. 
+  /**
+   * Creates a new ColorGenerator with initial values.
    * @returns {ColorGenerator}
    */
   initParticleColorGenerator() {
@@ -137,7 +149,7 @@ class Paintbrush {
     this.particles.push(newParticle);
   }
 
-  /** Creates a new ColorGenerator copied from the particleColorGenerator, but with 
+  /** Creates a new ColorGenerator copied from the particleColorGenerator, but with
    * initial color of the brushColorGenerator.
    */
   createParticleColorGenerator() {
@@ -363,7 +375,7 @@ class Paintbrush {
         particle.prevPosition.y,
         particle.position.x,
         particle.position.y,
-        particle.size + 1,
+        particle.size + 1
       );
     }
   }

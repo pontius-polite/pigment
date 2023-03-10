@@ -40,9 +40,9 @@ class ColorGenerator {
   applyDynamics = {
     static: () => {},
     cycleHue: () => {
-      this.color.hue += this.speed;
-      if (this.color.hue > 359) {
-        this.color.hue = 0;
+      this.color.hue -= this.speed;
+      if (this.color.hue < 0) {
+        this.color.hue = 360;
       }
     },
     cycleSaturation: () => {
@@ -71,7 +71,7 @@ class ColorGenerator {
       if (this.path.colors.length > 1) {
         const targetIndex = (this.path.current + 1) % this.path.colors.length;
         const targetColor = this.path.colors[targetIndex];
-        this.color.moveTo(targetColor, this.speed / 3);
+        this.color.moveTo(targetColor, this.speed);
         if (this.color.equals(targetColor)) {
           this.path.current = (this.path.current + 1) % this.path.colors.length;
         }
