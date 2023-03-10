@@ -55,6 +55,7 @@
   align-items: center;
   padding: 5px;
   border-bottom: 2px solid var(--menu-background-color);
+  min-height: 35px;
 }
 
 .menu-panel-divider-heading {

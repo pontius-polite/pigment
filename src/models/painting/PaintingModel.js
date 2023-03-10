@@ -4,7 +4,6 @@ import Paintbrush from "./Paintbrush";
 import Color from "../color/Color";
 import FrameTimer from "../../timing/FrameTimer";
 import DebugView from "../debug/DebugView";
-import ColorGenerator from "../color/ColorGenerator";
 
 /**
  * Abstraction of the user's drawing. Handles state, updates, and canvas drawing.

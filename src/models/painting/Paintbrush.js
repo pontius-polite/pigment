@@ -51,28 +51,6 @@ class Paintbrush {
     colorGen.style = "cycleHue";
     colorGen.speed = 3;
     colorGen.interval = 1;
-
-    colorGen.style = "path";
-
-    /**
- * minimalist
- * bee sting
- * mad max
- * tokyo
- * 
- */
-
-    colorGen.path.colors = [
-      new Color(53, 38, 70),
-      new Color(53, 38, 100),
-      // new Color(65, 94, 63),
-      // new Color(239, 32, 67),
-      // new Color(239, 80, 55),
-      //new Color(100, 75, 72),
-      // new Color(24, 21, 28),
-    ];
-    colorGen.color = colorGen.path.colors[0].copy();
-    console.log("ColorGen: ", colorGen.serialize());
     return colorGen;
   }
 
