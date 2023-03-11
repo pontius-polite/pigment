@@ -49,7 +49,7 @@ class Paintbrush {
   initBrushColorGenerator() {
     const colorGen = new ColorGenerator(this.settings.brushColor.copy());
     colorGen.style = "cycleHue";
-    colorGen.speed = 3;
+    colorGen.speed = 1;
     colorGen.interval = 1;
     return colorGen;
   }
@@ -338,22 +338,27 @@ class Paintbrush {
     this.grid.setColor(particle.color);
   }
 
+  /** Returns true if particle movement should be interpolated. */
+  shouldInterpolateParticles(particle) {
+    return (
+      this.settings.interpolateParticles &&
+      !this.settings.outline &&
+      particle.hasMoved()
+    );
+  }
+
   /**
    * Draws a line between the particle's current and previous positions.
    * @param {Particle} particle
    */
   drawParticleMovementInterpolation(particle) {
-    if (
-      this.settings.interpolateParticles &&
-      !this.settings.outline &&
-      particle.hasMoved()
-    ) {
+    if (this.shouldInterpolateParticles(particle)) {
       this.grid.drawLine(
         particle.prevPosition.x,
         particle.prevPosition.y,
         particle.position.x,
         particle.position.y,
-        particle.size + 1
+        particle.size
       );
     }
   }
@@ -370,7 +375,7 @@ class Paintbrush {
 
     // Interpolate reflected particle movements per setting.
     let prevPoints = null;
-    if (this.settings.interpolateParticles && particle.hasMoved()) {
+    if (this.shouldInterpolateParticles(particle)) {
       prevPoints = getReflectionPoints(
         particle.prevPosition,
         this.settings.reflection

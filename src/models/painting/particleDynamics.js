@@ -77,13 +77,14 @@ const particleDynamics = {
     p.applyVelocity();
   },
   firework: (p, speed) => {
-    const s = speed * 20;
+    const s = speed * 10;
     if (p.age === 0) {
-      p.velocity.x = randomNum(s * -1, s);
-      p.velocity.y = randomNum(s * -1, s);
+      const theta = randomNum(0, Math.PI * 2);
+      p.velocity.x = Math.cos(theta) * s;
+      p.velocity.y = Math.sin(theta) * s;
     }
-    p.velocity.x *= 0.8;
-    p.velocity.y *= 0.8;
+    p.velocity.x *= 0.95;
+    p.velocity.y *= 0.95;
     p.applyVelocity();
   },
   still: (p, speed) => {},

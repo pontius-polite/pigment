@@ -97,6 +97,11 @@ class Color {
     const intLit = Math.floor(this.lightness);
     return `hsl(${intHue}, ${intSat}%, ${intLit}%)`;
   }
+
+  static deserialize(color) {
+    const result = new Color(color.hue, color.saturation, color.lightness);
+    return result;
+  }
 }
 
 export default Color;

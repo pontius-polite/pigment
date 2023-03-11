@@ -1,3 +1,9 @@
-[
-  
-]
+{
+  "brownian fungus": ["creep",1,4,-0.02,false,false,false,"#ff008c",true,1,1,false,false,2,1,"none",3],
+  "the three fates": ["still",1.5,10,2,false,false,false,"#5900ff",true,3,1,false,true,1,1,"polar",3],
+  "anemone bloom": ["spaghetti",0.5,10,0,false,false,true,"#002aff",true,1,1,false,true,1,1,"none",3],
+  "mind, drips": ["drip",1,6,0,false,false,false,"#00eeff",true,1,1,false,false,2,1,"horizontal",3],
+  "an awesome wave": ["fountain",1,4,1,false,true,false,"#ff008c",true,1,1,false,true,2,1,"none",3],
+  "prismatic core": ["tesseract",1,1,0,false,false,false,"#00ff77",true,1,1,false,false,2,1,"none",3],
+  "billiard table": ["firework",5,10,0,false,true,false,"#ffaa00",true,1,1,false,false,2,1,"none",3]
+}

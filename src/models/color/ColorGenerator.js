@@ -133,13 +133,34 @@ class ColorGenerator {
       props.color.lightness
     );
     const generator = new ColorGenerator(initColor);
+    generator.style = props.style;
     generator.speed = props.speed;
     generator.interval = props.interval;
     generator.path = props.path;
     generator.tempColor = { ...initColor };
-    generator.style = props.style;
-    console.log(generator);
     return generator;
+  }
+
+  compressToArray() {
+    return [
+      this.color.hue,
+      this.color.saturation,
+      this.color.lightness,
+      this.style,
+      this.speed,
+      this.interval,
+      this.path,
+    ];
+  }
+
+  static decompress(compressedArray) {
+    const initColor = new Color(compressedArray[0], compressedArray[1], compressedArray[2]);
+    const result = new ColorGenerator(initColor);
+    result.style = compressedArray[3];
+    result.speed = compressedArray[4];
+    result.interval = compressedArray[5];
+    result.path = compressedArray[6];
+    return result;
   }
 }
 

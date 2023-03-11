@@ -1,8 +1,8 @@
 {
   "rainbow": {"color":{"hue":327,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":327,"saturation":100,"lightness":50}]},"style":"cycleHue"},
   "chaos": {"color":{"hue":194,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":194,"saturation":100,"lightness":50}]},"style":"random"},
-  "the deep": {"color":{"hue":250,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":250,"saturation":100,"lightness":50},{"hue":183,"saturation":100,"lightness":58},{"hue":156,"saturation":100,"lightness":32}]},"style":"path"},
-  "flame": {"color":{"hue":0,"saturation":100,"lightness":50},"speed":3,"interval":1,"path":{"current":0,"colors":[{"hue":0,"saturation":100,"lightness":50},{"hue":56,"saturation":100,"lightness":50}]},"style":"path"},
+  "nautical": {"color":{"hue":250,"saturation":100,"lightness":50},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":250,"saturation":100,"lightness":50},{"hue":183,"saturation":100,"lightness":58}]},"style":"path"},
+  "aflame": {"color":{"hue":0,"saturation":100,"lightness":50},"speed":3,"interval":1,"path":{"current":0,"colors":[{"hue":0,"saturation":100,"lightness":50},{"hue":56,"saturation":100,"lightness":50}]},"style":"path"},
   "tropical": {"color":{"hue":200,"saturation":100,"lightness":50},"speed":3,"interval":1,"path":{"current":0,"colors":[{"hue":200,"saturation":100,"lightness":50},{"hue":71,"saturation":100,"lightness":50}]},"style":"path"},
   "abyss": {"color":{"hue":270,"saturation":100,"lightness":31},"speed":3,"interval":1,"path":{"current":0,"colors":[{"hue":270,"saturation":100,"lightness":31},{"hue":232,"saturation":100,"lightness":28},{"hue":270,"saturation":100,"lightness":0}]},"style":"path"},
   "spring": {"color":{"hue":151,"saturation":100,"lightness":70},"speed":1,"interval":1,"path":{"current":0,"colors":[{"hue":151,"saturation":100,"lightness":70},{"hue":302,"saturation":100,"lightness":79},{"hue":191,"saturation":100,"lightness":72},{"hue":55,"saturation":100,"lightness":79}]},"style":"path"},

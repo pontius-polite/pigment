@@ -1,2 +1,0 @@
-# pigment
-Browser particle painting
