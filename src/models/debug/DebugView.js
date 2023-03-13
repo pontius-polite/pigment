@@ -2,6 +2,7 @@ class DebugView {
   constructor() {
     this.isVisible = process.env.NODE_ENV === "development" ? true : false;
     this.debugElement = document.querySelector(".debug-container");
+    this.debugElement.style.display = this.isVisible ? 'static' : 'none';
     console.assert(this.debugElement !== null);
   }
 

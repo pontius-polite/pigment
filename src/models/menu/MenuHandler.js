@@ -7,8 +7,6 @@ import KeyHandler from "../inputs/KeyHandler";
 import { colorFromHex, colorToHex } from "../../utils/color";
 import { randomChoice, randomNum, randomInt } from "../../utils/random";
 
-import initializeMenu from './initializeMenu';
-
 /**
  * A class for managing the state of the page's menu elements and a PaintingModel.
  * The other files in this application *try* to follow principles of clean, maintainable code.
@@ -20,23 +18,23 @@ class MenuHandler {
    * @param {PaintingModel}
    */
   constructor(paintingModel) {
-    this.painting = paintingModel;
+    this.paintingModel = paintingModel;
     this.brush = paintingModel.brush;
-    initializeMenu();
 
-    
+    this.brushPresets = brushPresets;
+    this.userBrushPresets = this.getUserPresets();
 
+    this.initializeMenu();
+    this.applyDefaultPreset();
     this.addAllEventHandlers();
-
-    //this.loadLocalStorage();
 
     this.keys = new KeyHandler({
       " ": () => this.handlePause(),
-      d: () => this.painting.debugView.toggle(),
-      backspace: () => this.painting.clear(),
-      delete: () => this.painting.clear(),
+      d: () => this.paintingModel.debugView.toggle(),
+      backspace: () => this.paintingModel.clear(),
+      delete: () => this.paintingModel.clear(),
       escape: () => this.deselectAllPanels(),
-      r: () => this.randomizeBrush()
+      r: () => this.randomizeBrush(),
     });
   }
 
@@ -45,10 +43,142 @@ class MenuHandler {
     this.applyBrushPreset(defaultPreset);
   }
 
+  initializeMenu() {
+    this.createMenuTabbing();
+    this.addSelectOptions();
+  }
+
   addAllEventHandlers() {
     this.addInputEventListeners();
     this.addPresetSelectHandlers();
     this.addIconButtonHandlers();
+
+    document.querySelector(".close-welcome-modal").onclick = () => {
+      this.hideWelcomeModal();
+    };
+    document.querySelector(".close-save-modal").onclick = () => {
+      document.querySelector(".save-modal").style.display = "none";
+      this.keys.block = false;
+    };
+    document.getElementById("save-preset-form").onsubmit = (event) => {
+      event.preventDefault();
+      const presetName = event.target[0].value.trim();
+      if (presetName) {
+        this.handleSavePreset(presetName);
+      }
+    };
+  }
+
+  getUserPresets() {
+    const userPresets = JSON.parse(localStorage.getItem("presets"));
+    if (!userPresets) {
+      return {};
+    }
+    return userPresets;
+  }
+
+  hideWelcomeModal() {
+    document.querySelector(".welcome-modal").style.display = "none";
+  }
+
+  /**
+   * Adds onclick events to menu tab buttons for showing/hiding the respective menu panel.
+   */
+  createMenuTabbing() {
+    const buttonContainer = document.querySelector(
+      ".menu-tab-button-container"
+    );
+    const buttons = buttonContainer.children;
+    for (let i = 0; i < buttons.length; i += 1) {
+      const button = buttons[i];
+      button.onclick = (event) => {
+        this.hideWelcomeModal();
+        const panel = document.getElementById(
+          event.target.getAttribute("panel")
+        );
+        if (event.target.classList.contains("selected")) {
+          this.deselectAllPanels();
+          return;
+        }
+        this.deselectAllPanels();
+        event.target.classList.add("selected");
+        panel.style.display = "flex";
+        if (panel.id === "color-panel") {
+          panel.style.display = "block";
+        }
+      };
+    }
+  }
+
+  /**
+   * Deselects all menu panels and hides them.
+   */
+  deselectAllPanels() {
+    const buttons = document.getElementsByClassName("selected");
+    for (let button of buttons) {
+      button.classList.remove("selected");
+    }
+    const panels = document.getElementsByClassName("menu-panel");
+    for (let panel of panels) {
+      panel.style.display = "none";
+    }
+  }
+
+  /**
+   * Adds select element options for brush presets and brush/particle color palettes.
+   */
+  addSelectOptions() {
+    const styleSelect = document.querySelector("[name=brush-style]");
+    const styles = Object.keys(particleDynamics);
+    for (let style of styles) {
+      const option = document.createElement("option");
+      option.value = style;
+      option.innerHTML = style;
+      styleSelect.appendChild(option);
+    }
+
+    const brushPaletteSelect = document.querySelector(
+      "[name=color-brush-palette]"
+    );
+    const particlePaletteSelect = document.querySelector(
+      "[name=color-particle-palette]"
+    );
+    for (let palette of Object.keys(palettePresets)) {
+      const brushOption = document.createElement("option");
+      brushOption.value = palette;
+      brushOption.innerHTML = palette;
+      brushPaletteSelect.appendChild(brushOption);
+      const particleOption = document.createElement("option");
+      particleOption.value = palette;
+      particleOption.innerHTML = palette;
+      particlePaletteSelect.appendChild(particleOption);
+    }
+
+    const brushPresetSelect = document.querySelector("[name=brush-preset]");
+    const optGroup = document.createElement("optgroup");
+    optGroup.label = "Presets";
+    for (let preset of Object.keys(this.brushPresets)) {
+      const option = document.createElement("option");
+      option.value = preset;
+      option.innerHTML = preset;
+      optGroup.appendChild(option);
+    }
+    brushPresetSelect.appendChild(optGroup);
+
+    if (Object.keys(this.userBrushPresets).length > 0) {
+      const optGroup = document.createElement("optgroup");
+      optGroup.label = "Saved Presets";
+      optGroup.id = "user-preset-options";
+
+      for (let preset of Object.keys(this.userBrushPresets)) {
+        const option = document.createElement("option");
+        option.value = preset;
+        option.innerHTML = preset;
+        optGroup.appendChild(option);
+      }
+      brushPresetSelect.appendChild(optGroup);
+    }
+    
   }
 
   /**
@@ -59,10 +189,9 @@ class MenuHandler {
     for (let setting of Object.keys(settings)) {
       const element = document.querySelector(`[name=${setting}]`);
       if (element) {
-        element.onchange = this.createOnChangeHandler();
+        element.onchange = this.createOnChangeHandler(setting);
       }
     }
-    
   }
 
   /**
@@ -70,7 +199,7 @@ class MenuHandler {
    * Unseemly switch statement to handle different input element types.
    * @returns {function}
    */
-  createOnChangeHandler() {
+  createOnChangeHandler(setting) {
     const onChange = (event) => {
       const newSettings = this.getSettingsFromPainting();
       switch (event.target.type) {
@@ -134,7 +263,7 @@ class MenuHandler {
 
   /**
    * Toggles the reflection 'amount' input visibility depending on reflection type setting.
-   * @param {*} value 
+   * @param {*} value
    */
   toggleReflectionAmountBox(value) {
     const showReflectionAmount = value === "polar";
@@ -165,11 +294,14 @@ class MenuHandler {
 
     const brushPresetSelect = document.querySelector("[name=brush-preset]");
     brushPresetSelect.onchange = (event) => {
-      const preset = brushPresets[event.target.value];
+      let preset = this.brushPresets[event.target.value];
+      if (!preset) {
+        preset = this.userBrushPresets[event.target.value];
+      }
       this.applyBrushPreset(preset);
     };
   }
-  
+
   /**
    * Adds onclick handlers for the icon menu buttons.
    */
@@ -178,125 +310,97 @@ class MenuHandler {
     const resumeButton = document.getElementById("resume-button");
     pauseButton.onclick = () => this.handlePause();
     resumeButton.onclick = () => this.handlePause();
-  
+
     const saveButton = document.getElementById("save-button");
-    saveButton.onclick = () => this.handleSave();
-  
+    saveButton.onclick = () => this.handleOpenSave();
+
     const deleteButton = document.getElementById("delete-button");
-    deleteButton.onclick = () => this.painting.clear();
-  
+    deleteButton.onclick = () => this.paintingModel.clear();
+
     const shuffleButton = document.getElementById("shuffle-button");
     shuffleButton.onclick = () => this.randomizeBrush();
-  };
-  
-  /** 
+  }
+
+  /**
    * Handles pausing/unpausing the paintbrush movement and swapping the pause/resume buttons.
    */
   handlePause() {
     const pauseButton = document.getElementById("pause-button");
-    const resumeButton = document.getElementById('resume-button');
+    const resumeButton = document.getElementById("resume-button");
     if (!this.brush.settings.pauseMovement) {
       this.brush.settings.pauseMovement = true;
-      pauseButton.style.display = 'none';
-      resumeButton.style.display = 'flex';
+      pauseButton.style.display = "none";
+      resumeButton.style.display = "flex";
       return;
     }
     this.brush.settings.pauseMovement = false;
-    pauseButton.style.display = 'flex';
-    resumeButton.style.display = 'none';
+    pauseButton.style.display = "flex";
+    resumeButton.style.display = "none";
   }
 
-  handleSave() {
-    //open save window to input name
+  handleOpenSave() {
+    this.keys.block = true;
+    document.querySelector(".save-modal").style.display = "flex";
+    document.querySelector(".welcome-modal").style.display = "none";
+  }
+
+  handleSavePreset(presetName) {
+    console.log(presetName);
+    this.userBrushPresets[presetName] = this.getBrushPreset();
+    localStorage.setItem("presets", JSON.stringify(this.userBrushPresets));
+    this.addPresetToDropdown(presetName);
+    document.querySelector(".save-modal").style.display = "none";
+  }
+
+  addPresetToDropdown(presetName) {
+    let optGroup = document.getElementById("user-preset-options");
+    if (!optGroup) {
+      optGroup = document.createElement('optgroup');
+      optGroup.id = 'user-preset-options';
+      optGroup.label = "Saved presets";
+    }
+    const option = document.createElement("option");
+    option.value = presetName;
+    option.innerHTML = presetName;
+    optGroup.appendChild(option);
+
+    document.querySelector("[name=brush-preset]").value = presetName;
   }
 
   /**
    * Randomizes certain paintbrush settings and applies them.
    */
   randomizeBrush() {
-    const settings = this.getBrushSettingsFromPainting();
-    settings['brush-style'] = randomChoice(Object.keys(particleDynamics));
-    settings['brush-speed'] = randomNum(0.2, 5);
-    settings['brush-size'] = randomInt(1, 50);
-    settings['brush-growth'] = randomNum(-1, 1);
-    settings['brush-outline'] = randomInt(1, 10) > 9 ? true : false;
-    settings['brush-bounce'] = randomInt(0, 1) ? true : false;
-    settings['brush-gravity-mouse'] = randomInt(1, 6) > 5 ? true: false;
+    const settings = this.getSettingsFromPainting();
+    settings["brush-style"] = randomChoice(Object.keys(particleDynamics));
+    settings["brush-speed"] = randomNum(0.2, 5);
+    settings["brush-size"] = randomInt(1, 50);
+    settings["brush-growth"] = randomNum(-1, 1);
+    settings["brush-outline"] = randomInt(1, 10) > 9 ? true : false;
+    settings["brush-bounce"] = randomInt(0, 1) ? true : false;
+    settings["brush-gravity-mouse"] = randomInt(1, 6) > 5 ? true : false;
     const reflectionChoice = randomInt(0, 10);
     if (reflectionChoice > 4) {
-      settings['reflection-type'] = "polar";
+      settings["reflection-type"] = "polar";
     }
     if (reflectionChoice > 6) {
-      settings['reflection-type'] = "horizontal";
+      settings["reflection-type"] = "horizontal";
     }
     if (reflectionChoice > 8) {
-      settings['reflection-type'] = "vertical";
+      settings["reflection-type"] = "vertical";
     }
-    settings['reflection-amount'] = randomInt(2, 6);
+    settings["reflection-amount"] = randomInt(2, 6);
 
-
-    this.applySettingsToBrush(settings);
+    this.applySettingsToPainting(settings);
     this.applySettingsToDOM(settings);
-  }
-
-  /**
-   * Applies the settings object properties to the PaintingModel's PaintBrush.
-   * @param {object} settings
-   */
-  applySettingsToBrush(settings) {
-    this.brush.settings.movement = settings["brush-style"];
-    this.brush.settings.speed = settings["brush-speed"];
-    this.brush.settings.size = settings["brush-size"];
-    this.brush.settings.growth = settings["brush-growth"];
-    this.brush.settings.outline = settings["brush-outline"];
-    this.brush.settings.bounce = settings["brush-bounce"];
-    this.brush.settings.followMouse = settings["brush-gravity-mouse"];
-
-    this.brush.settings.brushColor = colorFromHex(settings["color-brush"]);
-    this.brush.settings.dynamicBrushColor = settings["color-brush-dynamic"];
-
-    this.brush.brushColorGenerator.speed =
-      settings["color-brush-dynamic-speed"];
-    this.brush.brushColorGenerator.interval =
-      settings["color-brush-dynamic-interval"];
-    this.brush.settings.useBrushColor = settings["color-brush-apply"];
-
-    this.brush.settings.dynamicParticleColor =
-      settings["color-particle-dynamic"];
-
-    this.brush.particleColorGenerator.speed =
-      settings["color-particle-dynamic-speed"];
-    this.brush.particleColorGenerator.interval =
-      settings["color-particle-dynamic-interval"];
-
-    this.brush.settings.reflection.type = settings["reflection-type"];
-    this.brush.settings.reflection.amount = settings["reflection-amount"];
-  }
-
-  /**
-   * Applies the settings object properties to the PaintingModel and its PaintBrush.
-   * @param {object} settings
-   */
-  applySettingsToPainting(settings) {
-    this.applySettingsToBrush(settings);
-    this.painting.settings.backgroundColor = colorFromHex(
-      settings["color-background"]
-    );
-    this.brush.settings.shape = settings["performance-particle-quality"];
-    this.brush.settings.lifespan = settings["performance-particle-lifespan"];
-    this.brush.settings.interpolateMouse =
-      settings["performance-interpolate-mouse"];
-    this.brush.settings.interpolateParticles =
-      settings["performance-interpolate-particles"];
-    this.painting.settings.dynamicallyRemoveParticles =
-      settings["performance-dynamic-particle-removal"];
   }
 
   /**
    * Returns an object whose property names match the names of their respective html input elements.
    * @returns {object}
    */
-  getBrushSettingsFromPainting() {
+  getSettingsFromPainting() {
+    console.log("getting settings");
     return {
       "brush-style": this.brush.settings.movement,
       "brush-speed": this.brush.settings.speed,
@@ -308,46 +412,86 @@ class MenuHandler {
 
       "color-brush": colorToHex(this.brush.settings.brushColor),
       "color-brush-dynamic": this.brush.settings.dynamicBrushColor,
-
       "color-brush-dynamic-speed": this.brush.brushColorGenerator.speed,
       "color-brush-dynamic-interval": this.brush.brushColorGenerator.interval,
       "color-brush-apply": this.brush.settings.useBrushColor,
 
       "color-particle-dynamic": this.brush.settings.dynamicParticleColor,
-
       "color-particle-dynamic-speed": this.brush.particleColorGenerator.speed,
       "color-particle-dynamic-interval":
         this.brush.particleColorGenerator.interval,
 
       "reflection-type": this.brush.settings.reflection.type,
       "reflection-amount": this.brush.settings.reflection.amount,
-    };
-  }
 
-  /**
-   * Returns an object whose property names match the names of their respective html input elements.
-   * @returns {object}
-   */
-  getSettingsFromPainting() {
-    return {
-      ...this.getBrushSettingsFromPainting(),
-      "color-background": colorToHex(this.painting.settings.backgroundColor),
       "performance-particle-quality": this.brush.settings.shape,
       "performance-particle-lifespan": this.brush.settings.lifespan,
       "performance-interpolate-mouse": this.brush.settings.interpolateMouse,
       "performance-interpolate-particles":
         this.brush.settings.interpolateParticles,
       "performance-dynamic-particle-removal":
-        this.painting.settings.dynamicallyRemoveParticles,
+        this.paintingModel.settings.dynamicallyRemoveParticles,
+
+      "color-background": colorToHex(
+        this.paintingModel.settings.backgroundColor
+      ),
     };
+  }
+
+  /**
+   * Applies any specified settings properties to the PaintingModel.
+   * @param {object} settings
+   */
+  applySettingsToPainting(settings) {
+    console.log("applying settings: ", settings);
+    const newSettings = { ...this.getSettingsFromPainting(), ...settings };
+    this.brush.settings.movement = newSettings["brush-style"];
+    this.brush.settings.speed = newSettings["brush-speed"];
+    this.brush.settings.size = newSettings["brush-size"];
+    this.brush.settings.growth = newSettings["brush-growth"];
+    this.brush.settings.outline = newSettings["brush-outline"];
+    this.brush.settings.bounce = newSettings["brush-bounce"];
+    this.brush.settings.followMouse = newSettings["brush-gravity-mouse"];
+
+    this.brush.settings.brushColor = colorFromHex(newSettings["color-brush"]);
+    this.brush.settings.dynamicBrushColor = newSettings["color-brush-dynamic"];
+
+    this.brush.brushColorGenerator.speed =
+      newSettings["color-brush-dynamic-speed"];
+    this.brush.brushColorGenerator.interval =
+      newSettings["color-brush-dynamic-interval"];
+    this.brush.settings.useBrushColor = newSettings["color-brush-apply"];
+
+    this.brush.settings.dynamicParticleColor =
+      newSettings["color-particle-dynamic"];
+    this.brush.particleColorGenerator.speed =
+      newSettings["color-particle-dynamic-speed"];
+    this.brush.particleColorGenerator.interval =
+      newSettings["color-particle-dynamic-interval"];
+
+    this.brush.settings.reflection.type = newSettings["reflection-type"];
+    this.brush.settings.reflection.amount = newSettings["reflection-amount"];
+
+    this.brush.settings.shape = newSettings["performance-particle-quality"];
+    this.brush.settings.lifespan = newSettings["performance-particle-lifespan"];
+    this.brush.settings.interpolateMouse =
+      newSettings["performance-interpolate-mouse"];
+    this.brush.settings.interpolateParticles =
+      newSettings["performance-interpolate-particles"];
+    this.paintingModel.settings.dynamicallyRemoveParticles =
+      newSettings["performance-dynamic-particle-removal"];
+
+    this.paintingModel.settings.backgroundColor = colorFromHex(
+      newSettings["color-background"]
+    );
   }
 
   /**
    * Returns a stringified array of brush settings.
    * @returns {string}
    */
-  getBrushPresetJSON() {
-    return JSON.stringify([
+  getBrushPreset() {
+    return [
       this.brush.settings.movement,
       this.brush.settings.speed,
       this.brush.settings.size,
@@ -368,7 +512,7 @@ class MenuHandler {
 
       this.brush.settings.reflection.type,
       this.brush.settings.reflection.amount,
-    ]);
+    ];
   }
 
   /**
@@ -376,67 +520,71 @@ class MenuHandler {
    * and the DOM inputs.
    */
   applyBrushPreset(preset) {
-    const settings = {
-      "brush-style": preset[0],
-      "brush-speed": preset[1],
-      "brush-size": preset[2],
-      "brush-growth": preset[3],
-      "brush-outline": preset[4],
-      "brush-bounce": preset[5],
-      "brush-gravity-mouse": preset[6],
+    const settingNames = [
+      "brush-style",
+      "brush-speed",
+      "brush-size",
+      "brush-growth",
+      "brush-outline",
+      "brush-bounce",
+      "brush-gravity-mouse",
 
-      "color-brush": colorFromHex(preset[7]),
-      "color-brush-dynamic": preset[8],
-      "color-brush-dynamic-speed": preset[9],
-      "color-brush-dynamic-interval": preset[10],
-      "color-brush-apply": preset[11],
+      "color-brush",
+      "color-brush-dynamic",
+      "color-brush-dynamic-speed",
+      "color-brush-dynamic-interval",
+      "color-brush-apply",
 
-      "color-particle-dynamic": preset[12],
-      "color-particle-dynamic-speed": preset[13],
-      "color-particle-dynamic-interval": preset[14],
+      "color-particle-dynamic",
+      "color-particle-dynamic-speed",
+      "color-particle-dynamic-interval",
 
-      "reflection-type": preset[15],
-      "reflection-amount": preset[16],
+      "reflection-type",
+      "reflection-amount",
 
-      "color-brush-generator": undefined,
-      "color-particle-generator": undefined,
-    };
+      "color-brush-generator",
+      "color-particle-generator",
+    ];
 
-    console.log(settings);
-
-    this.applySettingsToBrush(settings);
-    this.applySettingsToDOM(settings);
+    const presetSettings = {};
+    settingNames.map((name, index) => {
+      presetSettings[name] = preset[index];
+    });
+    this.applySettingsToPainting(presetSettings);
+    this.applySettingsToDOM(presetSettings);
   }
 
   /**
    * Applies the settings properties to DOM inputs.
-   * @param {object} settings
+   * @param {object} newSettings
    */
   applySettingsToDOM(settings) {
-    for (let name of Object.keys(settings)) {
+    console.log("applying settings to DOM:", settings);
+    const newSettings = { ...this.getSettingsFromPainting(), ...settings };
+    for (let name of Object.keys(newSettings)) {
       const inputElement = document.querySelector(`[name=${name}]`);
       if (inputElement) {
         switch (inputElement.type) {
           case "checkbox":
-            inputElement.checked = settings[name];
+            inputElement.checked = newSettings[name];
             break;
           case "color":
-            inputElement.value = colorToHex(settings[name]);
+            inputElement.value = colorToHex(newSettings[name]);
             break;
           default:
-            inputElement.value = settings[name];
+            inputElement.value = newSettings[name];
         }
       }
     }
     this.toggleColorBoxes(
       "color-brush-dynamic",
-      settings["color-brush-dynamic"]
+      newSettings["color-brush-dynamic"]
     );
     this.toggleColorBoxes(
       "color-particle-dynamic",
-      settings["color-particle-dynamic"]
+      newSettings["color-particle-dynamic"]
     );
-    this.toggleReflectionAmountBox(settings["reflection-amount"]);
+    this.toggleReflectionAmountBox(newSettings["reflection-amount"]);
   }
 }
 

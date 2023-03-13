@@ -12,11 +12,13 @@
 .menu-button-container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap-reverse;
 }
 
 .menu-button-container > div {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .menu-icon-button-container {
@@ -25,6 +27,10 @@
 
 .menu-nav-button-container {
   margin-left: auto;
+}
+
+.menu-nav-button-container div {
+  padding: 8px 10px 5px 10px
 }
 
 .menu-button {
