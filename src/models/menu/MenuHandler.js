@@ -1,11 +1,13 @@
 import ColorGenerator from "../color/ColorGenerator";
-import Color from "../color/Color";
 import particleDynamics from "../painting/particleDynamics";
-import { colorFromHex, colorToHex } from "../../utils/color";
-
 import brushPresets from "../../presets/brushes";
 import palettePresets from "../../presets/palettes.json";
 import KeyHandler from "../inputs/KeyHandler";
+
+import { colorFromHex, colorToHex } from "../../utils/color";
+import { randomChoice, randomNum, randomInt } from "../../utils/random";
+
+import initializeMenu from './initializeMenu';
 
 /**
  * A class for managing the state of the page's menu elements and a PaintingModel.
@@ -20,122 +22,102 @@ class MenuHandler {
   constructor(paintingModel) {
     this.painting = paintingModel;
     this.brush = paintingModel.brush;
-
-    this.createMenuTabbing();
-    this.addSelectOptions();
-    this.addInputEventListeners();
+    initializeMenu();
 
     
-    this.defaultPreset = brushPresets["brownian fungus"];
-    this.applyBrushPreset(this.defaultPreset);
-    this.applySettingsToDOM(this.getSettingsFromPainting());
+
+    this.addAllEventHandlers();
 
     //this.loadLocalStorage();
-    
+
     this.keys = new KeyHandler({
-      c: () => navigator.clipboard.writeText(this.getBrushPresetJSON()),
+      " ": () => this.handlePause(),
+      d: () => this.painting.debugView.toggle(),
+      backspace: () => this.painting.clear(),
+      delete: () => this.painting.clear(),
+      escape: () => this.deselectAllPanels(),
+      r: () => this.randomizeBrush()
     });
   }
 
-  /**
-   * Adds onclick events to menu tab buttons for showing/hiding the respective menu panel.
-   */
-  createMenuTabbing() {
-    const buttonContainer = document.querySelector(
-      ".menu-tab-button-container"
-    );
-    const buttons = buttonContainer.children;
-    for (let i = 0; i < buttons.length; i += 1) {
-      const button = buttons[i];
-      button.onclick = (event) => {
-        const panel = document.getElementById(
-          event.target.getAttribute("panel")
-        );
-        if (event.target.classList.contains("selected")) {
-          this.deselectAllPanels();
-          return;
-        }
-        this.deselectAllPanels();
-        event.target.classList.add("selected");
-        panel.style.display = "flex";
-        if (panel.id === "color-panel") {
-          panel.style.display = "block";
-        }
-      };
-    }
+  applyDefaultPreset() {
+    const defaultPreset = brushPresets["brownian fungus"];
+    this.applyBrushPreset(defaultPreset);
   }
 
-  /**
-   * Deselects all menu panels and hides them.
-   */
-  deselectAllPanels() {
-    const buttons = document.getElementsByClassName("selected");
-    for (let button of buttons) {
-      button.classList.remove("selected");
-    }
-    const panels = document.getElementsByClassName("menu-panel");
-    for (let panel of panels) {
-      panel.style.display = "none";
-    }
+  addAllEventHandlers() {
+    this.addInputEventListeners();
+    this.addPresetSelectHandlers();
+    this.addIconButtonHandlers();
   }
 
   /**
    * Adds onchange event listeners to input elements that apply changes to painting.
-   * A method monstrosity.
    */
   addInputEventListeners() {
     const settings = this.getSettingsFromPainting();
     for (let setting of Object.keys(settings)) {
       const element = document.querySelector(`[name=${setting}]`);
       if (element) {
-        element.onchange = (event) => {
-          const newSettings = this.getSettingsFromPainting();
-          switch (event.target.type) {
-            case "number":
-              let resultNum = Number(event.target.value);
-              if (resultNum < Number(event.target.min)) {
-                resultNum = Number(event.target.min);
-                event.target.value = resultNum;
-              }
-              if (resultNum > Number(event.target.max)) {
-                resultNum = Number(event.target.max);
-                event.target.value = resultNum;
-              }
-              console.log(`${setting} changed to ${resultNum}`);
-              newSettings[setting] = resultNum;
-              break;
-            case "checkbox":
-              const resultBool = event.target.checked;
-              newSettings[setting] = resultBool;
-              console.log(`${setting} changed to ${resultBool}`);
-              if (
-                event.target.name === "color-brush-dynamic" ||
-                event.target.name === "color-particle-dynamic"
-              ) {
-                this.toggleColorBoxes(event.target.name, resultBool);
-              }
-              break;
-            case "color":
-              const resultColor = event.target.value;
-              newSettings[setting] = colorFromHex(resultColor);
-              console.log(`${setting} changed to ${resultColor}`);
-              break;
-            default:
-              newSettings[setting] = event.target.value;
-              console.log(`${setting} changed to ${event.target.value}`);
-          }
-          if (event.target.name === "reflection-type") {
-            this.toggleReflectionAmountBox(event.target.value);
-          }
-          this.applySettingsToPainting(newSettings);
-        };
+        element.onchange = this.createOnChangeHandler();
       }
     }
-    this.addPresetEventListeners();
+    
   }
 
   /**
-   * Toggles dynamic color options depending on whether the named element is checked.
+   * Returns an event handler function that applies the respective settings change to the painting.
+   * Unseemly switch statement to handle different input element types.
+   * @returns {function}
+   */
+  createOnChangeHandler() {
+    const onChange = (event) => {
+      const newSettings = this.getSettingsFromPainting();
+      switch (event.target.type) {
+        case "number":
+          let resultNum = Number(event.target.value);
+          if (resultNum < Number(event.target.min)) {
+            resultNum = Number(event.target.min);
+            event.target.value = resultNum;
+          }
+          if (resultNum > Number(event.target.max)) {
+            resultNum = Number(event.target.max);
+            event.target.value = resultNum;
+          }
+          console.log(`${setting} changed to ${resultNum}`);
+          newSettings[setting] = resultNum;
+          break;
+        case "checkbox":
+          const resultBool = event.target.checked;
+          newSettings[setting] = resultBool;
+          console.log(`${setting} changed to ${resultBool}`);
+          if (
+            event.target.name === "color-brush-dynamic" ||
+            event.target.name === "color-particle-dynamic"
+          ) {
+            this.toggleColorBoxes(event.target.name, resultBool);
+          }
+          break;
+        case "color":
+          const resultColor = event.target.value;
+          newSettings[setting] = colorFromHex(resultColor);
+          console.log(`${setting} changed to ${resultColor}`);
+          break;
+        default:
+          newSettings[setting] = event.target.value;
+          console.log(`${setting} changed to ${event.target.value}`);
+      }
+      if (event.target.name === "reflection-type") {
+        this.toggleReflectionAmountBox(event.target.value);
+      }
+      this.applySettingsToPainting(newSettings);
+    };
+
+    return onChange;
+  }
+
+  /**
+   * Toggles dynamic color options visibility based on whether the named checkbox input is checked.
    * @param {string} name
    * @param {boolean} value
    */
@@ -150,6 +132,10 @@ class MenuHandler {
     }
   }
 
+  /**
+   * Toggles the reflection 'amount' input visibility depending on reflection type setting.
+   * @param {*} value 
+   */
   toggleReflectionAmountBox(value) {
     const showReflectionAmount = value === "polar";
     const amountElement = document.getElementsByClassName(
@@ -158,7 +144,10 @@ class MenuHandler {
     amountElement.style.display = showReflectionAmount ? "flex" : "none";
   }
 
-  addPresetEventListeners() {
+  /**
+   * Adds onchange handlers to the color palette and brush preset dropdown inputs.
+   */
+  addPresetSelectHandlers() {
     const brushPaletteSelect = document.querySelector(
       "[name=color-brush-palette]"
     );
@@ -174,52 +163,80 @@ class MenuHandler {
       this.brush.particleColorGenerator = ColorGenerator.deserialize(palette);
     };
 
-    const brushPresetSelect = document.querySelector(
-      "[name=brush-preset]"
-    );
+    const brushPresetSelect = document.querySelector("[name=brush-preset]");
     brushPresetSelect.onchange = (event) => {
       const preset = brushPresets[event.target.value];
       this.applyBrushPreset(preset);
+    };
+  }
+  
+  /**
+   * Adds onclick handlers for the icon menu buttons.
+   */
+  addIconButtonHandlers() {
+    const pauseButton = document.getElementById("pause-button");
+    const resumeButton = document.getElementById("resume-button");
+    pauseButton.onclick = () => this.handlePause();
+    resumeButton.onclick = () => this.handlePause();
+  
+    const saveButton = document.getElementById("save-button");
+    saveButton.onclick = () => this.handleSave();
+  
+    const deleteButton = document.getElementById("delete-button");
+    deleteButton.onclick = () => this.painting.clear();
+  
+    const shuffleButton = document.getElementById("shuffle-button");
+    shuffleButton.onclick = () => this.randomizeBrush();
+  };
+  
+  /** 
+   * Handles pausing/unpausing the paintbrush movement and swapping the pause/resume buttons.
+   */
+  handlePause() {
+    const pauseButton = document.getElementById("pause-button");
+    const resumeButton = document.getElementById('resume-button');
+    if (!this.brush.settings.pauseMovement) {
+      this.brush.settings.pauseMovement = true;
+      pauseButton.style.display = 'none';
+      resumeButton.style.display = 'flex';
+      return;
     }
+    this.brush.settings.pauseMovement = false;
+    pauseButton.style.display = 'flex';
+    resumeButton.style.display = 'none';
+  }
+
+  handleSave() {
+    //open save window to input name
   }
 
   /**
-   * Adds select element options for brush presets and brush/particle color palettes.
+   * Randomizes certain paintbrush settings and applies them.
    */
-  addSelectOptions() {
-    const styleSelect = document.querySelector("[name=brush-style]");
-    const styles = Object.keys(particleDynamics);
-    for (let style of styles) {
-      const option = document.createElement("option");
-      option.value = style;
-      option.innerHTML = style;
-      styleSelect.appendChild(option);
+  randomizeBrush() {
+    const settings = this.getBrushSettingsFromPainting();
+    settings['brush-style'] = randomChoice(Object.keys(particleDynamics));
+    settings['brush-speed'] = randomNum(0.2, 5);
+    settings['brush-size'] = randomInt(1, 50);
+    settings['brush-growth'] = randomNum(-1, 1);
+    settings['brush-outline'] = randomInt(1, 10) > 9 ? true : false;
+    settings['brush-bounce'] = randomInt(0, 1) ? true : false;
+    settings['brush-gravity-mouse'] = randomInt(1, 6) > 5 ? true: false;
+    const reflectionChoice = randomInt(0, 10);
+    if (reflectionChoice > 4) {
+      settings['reflection-type'] = "polar";
     }
+    if (reflectionChoice > 6) {
+      settings['reflection-type'] = "horizontal";
+    }
+    if (reflectionChoice > 8) {
+      settings['reflection-type'] = "vertical";
+    }
+    settings['reflection-amount'] = randomInt(2, 6);
 
-    const brushPaletteSelect = document.querySelector(
-      "[name=color-brush-palette]"
-    );
-    const particlePaletteSelect = document.querySelector(
-      "[name=color-particle-palette]"
-    );
-    for (let palette of Object.keys(palettePresets)) {
-      const brushOption = document.createElement("option");
-      brushOption.value = palette;
-      brushOption.innerHTML = palette;
-      brushPaletteSelect.appendChild(brushOption);
-      const particleOption = document.createElement("option");
-      particleOption.value = palette;
-      particleOption.innerHTML = palette;
-      particlePaletteSelect.appendChild(particleOption);
-    }
 
-    const brushPresetSelect = document.querySelector("[name=brush-preset]");
-    for (let preset of Object.keys(brushPresets)) {
-      const option = document.createElement("option");
-      option.value = preset;
-      option.innerHTML = preset;
-      brushPresetSelect.appendChild(option);
-    }
+    this.applySettingsToBrush(settings);
+    this.applySettingsToDOM(settings);
   }
 
   /**
@@ -237,7 +254,7 @@ class MenuHandler {
 
     this.brush.settings.brushColor = colorFromHex(settings["color-brush"]);
     this.brush.settings.dynamicBrushColor = settings["color-brush-dynamic"];
-    
+
     this.brush.brushColorGenerator.speed =
       settings["color-brush-dynamic-speed"];
     this.brush.brushColorGenerator.interval =
@@ -360,8 +377,6 @@ class MenuHandler {
    */
   applyBrushPreset(preset) {
     const settings = {
-      
-
       "brush-style": preset[0],
       "brush-speed": preset[1],
       "brush-size": preset[2],
@@ -385,7 +400,6 @@ class MenuHandler {
 
       "color-brush-generator": undefined,
       "color-particle-generator": undefined,
-      
     };
 
     console.log(settings);

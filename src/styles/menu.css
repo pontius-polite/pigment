@@ -6,7 +6,7 @@
   width: 100vw;
   background-color: var(--menu-background-color);
   color: var(--text-color);
-  box-shadow: 0px 5px 10px 0px black;
+  box-shadow: 0px 5px 10px 0px rgb(14, 14, 14);
 }
 
 .menu-button-container {
@@ -14,19 +14,22 @@
   flex-direction: row;
 }
 
-.menu-tab-button-container {
+.menu-button-container > div {
   display: flex;
   flex-direction: row;
+}
+
+.menu-icon-button-container {
+  margin-left: 10px;
 }
 
 .menu-nav-button-container {
   margin-left: auto;
-  display: flex;
-  flex-direction: row;
 }
 
 .menu-button {
   padding: 10px;
+  padding-top: 12px;
   cursor: pointer;
   background-color: var(--menu-background-color);
   -webkit-user-select: none;
@@ -90,6 +93,10 @@
 }
 
 .polar-reflection-true {
+  display: none;
+}
+
+#resume-button {
   display: none;
 }
 

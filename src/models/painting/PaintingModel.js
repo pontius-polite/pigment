@@ -30,9 +30,7 @@ class PaintingModel {
     }
 
     this.keys = new KeyHandler({
-      " ": () => this.handlePause(),
-      d: () => this.debugView.toggle(),
-      escape: () => this.clear(),
+      
     });
   }
 
@@ -64,10 +62,6 @@ class PaintingModel {
       
       this.updates += 1;
     }     
-  }
-
-  handlePause() {
-    this.brush.settings.pauseMovement = !this.brush.settings.pauseMovement;
   }
 
   trimPaintbrushForPerformance() {

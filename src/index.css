@@ -1,6 +1,7 @@
 @import url('./styles/menu.css');
 @import url('./styles/canvas.css');
 @import url('./styles/debug.css');
+@import url('./styles/modal.css');
 
 :root {
   --menu-background-color: #282942;

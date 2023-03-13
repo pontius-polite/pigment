@@ -13,7 +13,11 @@
     <div class="menu-container">
       <div class="menu-button-container">
         <div class="menu-icon-button-container">
-          <div class="menu-button">eg.</div>
+          <div class="menu-button" id="pause-button" title="pause movement"><img width="20" height="20" src="./assets/pause.png"></div>
+          <div class="menu-button" id="resume-button" title="resume movement"><img width="20" height="20" src="./assets/resume.png"></div>
+          <div class="menu-button" id="delete-button" title="clear painting"><img width="20" height="20" src="./assets/delete.png"></div>
+          <div class="menu-button" id="save-button" title="save paintbrush"><img width="20" height="20" src="./assets/save.png"></div>
+          <div class="menu-button" id="shuffle-button" title="randomize paintbrush"><img width="20" height="20" src="./assets/shuffle.png"></div>
         </div>
         <div class="menu-tab-button-container">
           <div class="menu-button" panel="paintbrush-panel">Paintbrush</div>
@@ -161,7 +165,8 @@
         </div>
         <div class="menu-panel" id="hotkeys-panel">
           <div class="menu-item-container">Space bar : pause painting</div>
-          <div class="menu-item-container">Escape : clear painting</div>
+          <div class="menu-item-container">Backspace/Delete : clear painting</div>
+          <div class="menu-item-container">Escape : close menus</div>
           <div class="menu-item-container">R : randomize brush</div>
           <div class="menu-item-container">D : show debug</div>
         </div>
@@ -171,6 +176,9 @@
       <canvas id="foreground-canvas">Your browser does not support HTML canvas</canvas>
     </div>
     <div class="debug-container"></div>
+    <div class="modal welcome-container">
+      <div>Hi there!</div>
+    </div>
   </div>
 </body>
 
