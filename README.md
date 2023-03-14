@@ -12,10 +12,9 @@ What do I use Pigment for?
 - inspiration
 - fun
 
-This app was built with vanilla javascript, html, and css - mainly as a challenge to myself. 
-No other 3rd party modules. Transpiling with Babel, bundling with Webpack.
+This app was built with vanilla javascript, html, and css, without any 3rd party dependencies - mainly as a challenge to myself. Transpiling with Babel, bundling with Webpack.
 
-# Features
+## Features
 - simple interface for in-browser drawing
 - intuitive menu system 
 - performance options, including dynamic particle removal to prevent stuttering
