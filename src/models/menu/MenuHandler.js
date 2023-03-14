@@ -213,13 +213,11 @@ class MenuHandler {
             resultNum = Number(event.target.max);
             event.target.value = resultNum;
           }
-          console.log(`${setting} changed to ${resultNum}`);
           newSettings[setting] = resultNum;
           break;
         case "checkbox":
           const resultBool = event.target.checked;
           newSettings[setting] = resultBool;
-          console.log(`${setting} changed to ${resultBool}`);
           if (
             event.target.name === "color-brush-dynamic" ||
             event.target.name === "color-particle-dynamic"
@@ -230,11 +228,9 @@ class MenuHandler {
         case "color":
           const resultColor = event.target.value;
           newSettings[setting] = colorFromHex(resultColor);
-          console.log(`${setting} changed to ${resultColor}`);
           break;
         default:
           newSettings[setting] = event.target.value;
-          console.log(`${setting} changed to ${event.target.value}`);
       }
       if (event.target.name === "reflection-type") {
         this.toggleReflectionAmountBox(event.target.value);
@@ -338,6 +334,9 @@ class MenuHandler {
     resumeButton.style.display = "none";
   }
 
+  /**
+   * Opens the brush preset saving modal.
+   */
   handleOpenSave() {
     this.keys.block = true;
     document.querySelector(".save-modal").style.display = "flex";
@@ -345,7 +344,6 @@ class MenuHandler {
   }
 
   handleSavePreset(presetName) {
-    console.log(presetName);
     this.userBrushPresets[presetName] = this.getBrushPreset();
     localStorage.setItem("presets", JSON.stringify(this.userBrushPresets));
     this.addPresetToDropdown(presetName);
@@ -354,16 +352,17 @@ class MenuHandler {
 
   addPresetToDropdown(presetName) {
     let optGroup = document.getElementById("user-preset-options");
+    const select = document.querySelector("[name=brush-preset]");
     if (!optGroup) {
       optGroup = document.createElement('optgroup');
       optGroup.id = 'user-preset-options';
       optGroup.label = "Saved presets";
+      select.appendChild(optGroup)
     }
     const option = document.createElement("option");
     option.value = presetName;
     option.innerHTML = presetName;
     optGroup.appendChild(option);
-
     document.querySelector("[name=brush-preset]").value = presetName;
   }
 
@@ -400,7 +399,6 @@ class MenuHandler {
    * @returns {object}
    */
   getSettingsFromPainting() {
-    console.log("getting settings");
     return {
       "brush-style": this.brush.settings.movement,
       "brush-speed": this.brush.settings.speed,
@@ -443,7 +441,6 @@ class MenuHandler {
    * @param {object} settings
    */
   applySettingsToPainting(settings) {
-    console.log("applying settings: ", settings);
     const newSettings = { ...this.getSettingsFromPainting(), ...settings };
     this.brush.settings.movement = newSettings["brush-style"];
     this.brush.settings.speed = newSettings["brush-speed"];
@@ -559,7 +556,6 @@ class MenuHandler {
    * @param {object} newSettings
    */
   applySettingsToDOM(settings) {
-    console.log("applying settings to DOM:", settings);
     const newSettings = { ...this.getSettingsFromPainting(), ...settings };
     for (let name of Object.keys(newSettings)) {
       const inputElement = document.querySelector(`[name=${name}]`);
