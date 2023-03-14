@@ -1,11 +1,10 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const config = {
   entry: "./src/index.js",
   output: {
-    path: path.join(__dirname, "/dist"),
+    path: path.join(__dirname, "/"),
     filename: "main.bundle.js",
   },
   devServer: {
@@ -42,9 +41,6 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({ template: "./src/index.html" }),
-    new CopyWebpackPlugin({
-      patterns: [{ from: "src/assets", to: "assets" }],
-    }),
   ],
 };
 
