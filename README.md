@@ -1,4 +1,4 @@
-![Pigment Logo](./src/assets/small-logo.png)
+![Pigment Logo](./assets/small-logo.png)
 # Pigment
 Pigment is a painting application that takes inspiration from cellular automata and falling sand games. 
 Your paintbrush lays down pixels that don't quite like to stay in one place. Much of their behavior can be finely adjusted, 
